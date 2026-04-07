@@ -10,9 +10,22 @@
 		79D7EC242F858E77008B4079 /* Hab' ich wirklich so viel Zeit gespart?.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Hab' ich wirklich so viel Zeit gespart?.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		79D7EC372F8594F4008B4079 /* Exceptions for "Hab' ich wirklich so viel Zeit gespart?" folder in "Hab' ich wirklich so viel Zeit gespart?" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Hab--ich-wirklich-so-viel-Zeit-gespart--Info.plist",
+			);
+			target = 79D7EC232F858E77008B4079 /* Hab' ich wirklich so viel Zeit gespart? */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		79D7EC262F858E77008B4079 /* Hab' ich wirklich so viel Zeit gespart? */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				79D7EC372F8594F4008B4079 /* Exceptions for "Hab' ich wirklich so viel Zeit gespart?" folder in "Hab' ich wirklich so viel Zeit gespart?" target */,
+			);
 			path = "Hab' ich wirklich so viel Zeit gespart?";
 			sourceTree = "<group>";
 		};
@@ -256,6 +269,9 @@
 				DEVELOPMENT_TEAM = XFZA57839W;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Hab--ich-wirklich-so-viel-Zeit-gespart--Info.plist";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Diese App braucht dauerhaften Standortzugriff, um die Geschwindigkeit und gesparte Zeit auch im Hintergrund zu erfassen.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Diese App nutzt deinen Standort, um die aktuelle Geschwindigkeit anzuzeigen und die gesparte Zeit zu berechnen.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -288,6 +304,9 @@
 				DEVELOPMENT_TEAM = XFZA57839W;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Hab--ich-wirklich-so-viel-Zeit-gespart--Info.plist";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Diese App braucht dauerhaften Standortzugriff, um die Geschwindigkeit und gesparte Zeit auch im Hintergrund zu erfassen.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Diese App nutzt deinen Standort, um die aktuelle Geschwindigkeit anzuzeigen und die gesparte Zeit zu berechnen.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
