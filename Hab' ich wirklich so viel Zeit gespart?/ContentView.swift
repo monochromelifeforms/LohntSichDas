@@ -34,6 +34,23 @@ struct ContentView: View {
                     .font(.system(size: 52, weight: .semibold, design: .monospaced))
                     .monospacedDigit()
                     .contentTransition(.numericText())
+                Text(formattedPercentage)
+                    .font(.title2.weight(.medium))
+                    .foregroundStyle(.secondary)
+                    .contentTransition(.numericText())
+            }
+
+            Spacer()
+
+            // Travel time display
+            VStack(spacing: 8) {
+                Text("Fahrzeit")
+                    .font(.headline)
+                    .foregroundStyle(.secondary)
+                Text(formattedTravelTime)
+                    .font(.system(size: 36, weight: .semibold, design: .monospaced))
+                    .monospacedDigit()
+                    .contentTransition(.numericText())
             }
 
             Spacer()
@@ -57,8 +74,21 @@ struct ContentView: View {
         }
     }
 
+    private var formattedPercentage: String {
+        guard locationManager.travelTime > 0 else { return "0.0 %" }
+        let pct = (locationManager.timeSaved / locationManager.travelTime) * 100
+        return String(format: "%.1f %%", pct)
+    }
+
+    private var formattedTravelTime: String {
+        formatDuration(locationManager.travelTime)
+    }
+
     private var formattedTimeSaved: String {
-        let total = locationManager.timeSaved
+        formatDuration(locationManager.timeSaved)
+    }
+
+    private func formatDuration(_ total: TimeInterval) -> String {
         let hours = Int(total) / 3600
         let minutes = (Int(total) % 3600) / 60
         let seconds = Int(total) % 60

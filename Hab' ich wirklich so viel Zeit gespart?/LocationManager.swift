@@ -10,6 +10,7 @@ import Observation
 class LocationManager: NSObject, CLLocationManagerDelegate {
     var currentSpeed: Double = 0 // km/h
     var timeSaved: TimeInterval = 0 // seconds
+    var travelTime: TimeInterval = 0 // seconds spent above 8 km/h
 
     private let manager = CLLocationManager()
     private let threshold: Double = 130.0 // km/h
@@ -31,6 +32,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
 
     func reset() {
         timeSaved = 0
+        travelTime = 0
     }
 
     // MARK: - CLLocationManagerDelegate
@@ -42,12 +44,17 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
             let speedKMH = location.speed * 3.6
             currentSpeed = speedKMH
 
-            if speedKMH > threshold, let last = lastTimestamp {
+            if let last = lastTimestamp {
                 let dt = location.timestamp.timeIntervalSince(last)
                 if dt > 0, dt < 10 {
-                    // Distance = speed * dt; time at 130 = distance / 130
-                    // Time saved = dt * (actualSpeed / 130 - 1)
-                    timeSaved += dt * (speedKMH / threshold - 1)
+                    if speedKMH > 8 {
+                        travelTime += dt
+                    }
+                    if speedKMH > threshold {
+                        // Distance = speed * dt; time at 130 = distance / 130
+                        // Time saved = dt * (actualSpeed / 130 - 1)
+                        timeSaved += dt * (speedKMH / threshold - 1)
+                    }
                 }
             }
 
