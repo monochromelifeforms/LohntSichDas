@@ -12,8 +12,9 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
     var timeSaved: TimeInterval = 0 // seconds
     var travelTime: TimeInterval = 0 // seconds of driving
 
+    var threshold: Double = 130.0 // km/h
+
     private let manager = CLLocationManager()
-    private let threshold: Double = 130.0 // km/h
     private var lastTimestamp: Date?
     private var isDriving = false
     private var lastMovingTimestamp: Date? // last time speed was > 0

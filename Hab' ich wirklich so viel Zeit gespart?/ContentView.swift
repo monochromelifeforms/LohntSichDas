@@ -7,9 +7,21 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var locationManager = LocationManager()
+    @State private var showSettings = false
 
     var body: some View {
         VStack(spacing: 0) {
+            HStack {
+                Spacer()
+                Button {
+                    showSettings = true
+                } label: {
+                    Image(systemName: "gearshape")
+                        .font(.title2)
+                }
+                .padding(.trailing, 24)
+                .padding(.top, 8)
+            }
             Spacer()
 
             // Speed display
@@ -71,6 +83,9 @@ struct ContentView: View {
         }
         .onAppear {
             locationManager.start()
+        }
+        .sheet(isPresented: $showSettings) {
+            SettingsView(threshold: $locationManager.threshold)
         }
     }
 
