@@ -10,11 +10,14 @@ import Observation
 class LocationManager: NSObject, CLLocationManagerDelegate {
     var currentSpeed: Double = 0 // km/h
     var timeSaved: TimeInterval = 0 // seconds
-    var travelTime: TimeInterval = 0 // seconds spent above 8 km/h
+    var travelTime: TimeInterval = 0 // seconds of driving
 
     private let manager = CLLocationManager()
     private let threshold: Double = 130.0 // km/h
     private var lastTimestamp: Date?
+    private var isDriving = false
+    private var lastMovingTimestamp: Date? // last time speed was > 0
+    private let stopTimeout: TimeInterval = 60 // seconds at zero before stopping
 
     override init() {
         super.init()
@@ -33,6 +36,8 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
     func reset() {
         timeSaved = 0
         travelTime = 0
+        isDriving = false
+        lastMovingTimestamp = nil
     }
 
     // MARK: - CLLocationManagerDelegate
@@ -44,10 +49,22 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
             let speedKMH = location.speed * 3.6
             currentSpeed = speedKMH
 
+            // Driving state machine: start when > 8 km/h, stop after 60s at zero
+            if speedKMH > 8 {
+                if !isDriving {
+                    isDriving = true
+                }
+                lastMovingTimestamp = location.timestamp
+            } else if speedKMH == 0, isDriving, let lastMoving = lastMovingTimestamp {
+                if location.timestamp.timeIntervalSince(lastMoving) >= stopTimeout {
+                    isDriving = false
+                }
+            }
+
             if let last = lastTimestamp {
                 let dt = location.timestamp.timeIntervalSince(last)
                 if dt > 0, dt < 10 {
-                    if speedKMH > 8 {
+                    if isDriving {
                         travelTime += dt
                     }
                     if speedKMH > threshold {
