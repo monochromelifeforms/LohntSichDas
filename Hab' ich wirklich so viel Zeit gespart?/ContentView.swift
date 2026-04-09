@@ -103,14 +103,18 @@ struct ContentView: View {
     }
 
     private var formattedTravelTime: String {
-        formatDuration(locationManager.travelTime)
+        let total = Int(locationManager.travelTime)
+        let hours = total / 3600
+        let minutes = (total % 3600) / 60
+        let seconds = total % 60
+        if hours > 0 {
+            return String(format: "%d:%02d:%02d", hours, minutes, seconds)
+        }
+        return String(format: "%d:%02d", minutes, seconds)
     }
 
     private var formattedTimeSaved: String {
-        formatDuration(locationManager.timeSaved)
-    }
-
-    private func formatDuration(_ total: TimeInterval) -> String {
+        let total = locationManager.timeSaved
         let hours = Int(total) / 3600
         let minutes = (Int(total) % 3600) / 60
         let seconds = Int(total) % 60
