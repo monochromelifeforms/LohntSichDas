@@ -19,10 +19,11 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
     }
 
     var threshold: Double = 130.0 // km/h
+    var trafficJamMode = false // when on, drive time never auto-stops
+    private(set) var isDriving = false
 
     private let manager = CLLocationManager()
     private var lastTimestamp: Date?
-    private var isDriving = false
     private var lastMovingTimestamp: Date? // last time speed was > 0
     private let stopTimeout: TimeInterval = 60 // seconds at zero before stopping
 
@@ -48,6 +49,10 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
         lastMovingTimestamp = nil
     }
 
+    func stopDriving() {
+        isDriving = false
+    }
+
     // MARK: - CLLocationManagerDelegate
 
     nonisolated func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
@@ -63,7 +68,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
                     isDriving = true
                 }
                 lastMovingTimestamp = location.timestamp
-            } else if speedKMH < 6, isDriving, let lastMoving = lastMovingTimestamp {
+            } else if speedKMH < 6, isDriving, !trafficJamMode, let lastMoving = lastMovingTimestamp {
                 if location.timestamp.timeIntervalSince(lastMoving) >= stopTimeout {
                     isDriving = false
                 }

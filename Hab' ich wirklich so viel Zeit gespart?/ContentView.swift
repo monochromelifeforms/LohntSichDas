@@ -81,6 +81,36 @@ struct ContentView: View {
 
             Spacer()
 
+            // Staumodus and Stop buttons
+            HStack(spacing: 12) {
+                Button {
+                    locationManager.trafficJamMode.toggle()
+                } label: {
+                    Label("Staumodus", systemImage: locationManager.trafficJamMode ? "car.fill" : "car")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(locationManager.trafficJamMode ? .orange : .gray.opacity(0.3),
+                                    in: RoundedRectangle(cornerRadius: 14))
+                        .foregroundStyle(locationManager.trafficJamMode ? .white : .primary)
+                }
+
+                Button {
+                    locationManager.stopDriving()
+                } label: {
+                    Label("Stop", systemImage: "stop.fill")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(locationManager.isDriving ? .blue : .gray.opacity(0.3),
+                                    in: RoundedRectangle(cornerRadius: 14))
+                        .foregroundStyle(locationManager.isDriving ? .white : .primary)
+                }
+                .disabled(!locationManager.isDriving)
+            }
+            .padding(.horizontal, 24)
+            .padding(.bottom, 12)
+
             // Reset button
             Button {
                 locationManager.reset()
