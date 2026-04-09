@@ -11,6 +11,12 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
     var currentSpeed: Double = 0 // km/h
     var timeSaved: TimeInterval = 0 // seconds
     var travelTime: TimeInterval = 0 // seconds of driving
+    var totalDistance: Double = 0 // meters driven during travelTime
+
+    var averageSpeed: Double { // km/h
+        guard travelTime > 0 else { return 0 }
+        return (totalDistance / travelTime) * 3.6
+    }
 
     var threshold: Double = 130.0 // km/h
 
@@ -37,6 +43,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
     func reset() {
         timeSaved = 0
         travelTime = 0
+        totalDistance = 0
         isDriving = false
         lastMovingTimestamp = nil
     }
@@ -70,6 +77,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
                 if dt > 0, dt < 10 {
                     if isDriving {
                         travelTime += dt
+                        totalDistance += location.speed * dt
                     }
                     if speedKMH > threshold {
                         // Distance = speed * dt; time at 130 = distance / 130

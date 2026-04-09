@@ -57,15 +57,26 @@ struct ContentView: View {
 
             Spacer()
 
-            // Travel time display
-            VStack(spacing: 8) {
-                Text("Fahrzeit")
-                    .font(.headline)
-                    .foregroundStyle(.secondary)
-                Text(formattedTravelTime)
-                    .font(.system(size: 36, weight: .semibold, design: .monospaced))
-                    .monospacedDigit()
-                    .contentTransition(.numericText())
+            // Travel time and average speed
+            HStack(spacing: 32) {
+                VStack(spacing: 8) {
+                    Text("Fahrzeit")
+                        .font(.headline)
+                        .foregroundStyle(.secondary)
+                    Text(formattedTravelTime)
+                        .font(.system(size: 28, weight: .semibold, design: .monospaced))
+                        .monospacedDigit()
+                        .contentTransition(.numericText())
+                }
+                VStack(spacing: 8) {
+                    Text("Durchschnitt")
+                        .font(.headline)
+                        .foregroundStyle(.secondary)
+                    Text("\(Int(locationManager.averageSpeed)) km/h")
+                        .font(.system(size: 28, weight: .semibold, design: .monospaced))
+                        .monospacedDigit()
+                        .contentTransition(.numericText())
+                }
             }
 
             Spacer()
