@@ -34,8 +34,8 @@ struct ContentView: View {
                     .font(.title)
                     .foregroundStyle(.secondary)
                 Text("Referenz: \(Int(locationManager.threshold)) km/h")
-                    .font(.subheadline)
-                    .foregroundStyle(.tertiary)
+                    .font(.title2)
+                    .foregroundStyle(.secondary)
             }
 
             Spacer()
