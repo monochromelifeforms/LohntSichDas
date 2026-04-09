@@ -86,6 +86,10 @@ struct ContentView: View {
         }
         .onAppear {
             locationManager.start()
+            UIApplication.shared.isIdleTimerDisabled = true
+        }
+        .onDisappear {
+            UIApplication.shared.isIdleTimerDisabled = false
         }
         .sheet(isPresented: $showSettings) {
             SettingsView(threshold: $locationManager.threshold)
