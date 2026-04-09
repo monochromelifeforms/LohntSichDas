@@ -56,10 +56,13 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
                     isDriving = true
                 }
                 lastMovingTimestamp = location.timestamp
-            } else if speedKMH == 0, isDriving, let lastMoving = lastMovingTimestamp {
+            } else if speedKMH < 6, isDriving, let lastMoving = lastMovingTimestamp {
                 if location.timestamp.timeIntervalSince(lastMoving) >= stopTimeout {
                     isDriving = false
                 }
+            } else if speedKMH >= 6 {
+                // Between 6 and 8: not enough to start driving, but resets the stop timer
+                lastMovingTimestamp = location.timestamp
             }
 
             if let last = lastTimestamp {
