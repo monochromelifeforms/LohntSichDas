@@ -8,10 +8,19 @@ import SwiftUI
 struct ContentView: View {
     @State private var locationManager = LocationManager()
     @State private var showSettings = false
+    @State private var showHelp = false
 
     var body: some View {
         VStack(spacing: 0) {
             HStack {
+                Button {
+                    showHelp = true
+                } label: {
+                    Image(systemName: "questionmark.circle")
+                        .font(.title2)
+                }
+                .padding(.leading, 24)
+                .padding(.top, 8)
                 Spacer()
                 Button {
                     showSettings = true
@@ -134,6 +143,9 @@ struct ContentView: View {
         }
         .sheet(isPresented: $showSettings) {
             SettingsView(threshold: $locationManager.threshold)
+        }
+        .sheet(isPresented: $showHelp) {
+            HelpView()
         }
     }
 
