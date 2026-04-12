@@ -159,9 +159,9 @@ struct ContentView: View {
     }
 
     private var formattedPercentage: String {
-        guard locationManager.travelTime > 0 else { return "0.0 %" }
+        guard locationManager.travelTime > 0 else { return "0.00 %" }
         let pct = (locationManager.timeSaved / locationManager.travelTime) * 100
-        return String(format: "%.1f %%", pct)
+        return String(format: "%.2f %%", pct)
     }
 
     private var formattedDistance: String {
