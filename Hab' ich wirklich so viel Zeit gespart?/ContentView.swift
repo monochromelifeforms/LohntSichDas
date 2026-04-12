@@ -46,6 +46,15 @@ struct ContentView: View {
                     .font(.title2)
                     .foregroundStyle(.secondary)
             }
+            .overlay {
+                Circle()
+                    .trim(from: 0.1, to: 0.9)
+                    .stroke(style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                    .foregroundStyle(.secondary.opacity(0.4))
+                    .rotationEffect(.degrees(90))
+                    .frame(width: 280, height: 280)
+                    .offset(y: -30)
+            }
 
             Spacer()
 
