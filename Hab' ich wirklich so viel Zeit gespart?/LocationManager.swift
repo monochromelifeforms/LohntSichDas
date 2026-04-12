@@ -63,7 +63,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
             currentSpeed = speedKMH
 
             // Driving state machine: start when > 8 km/h, stop after 60s at zero
-            if speedKMH > 8 {
+            if speedKMH > 10 {
                 if !isDriving {
                     isDriving = true
                 }
