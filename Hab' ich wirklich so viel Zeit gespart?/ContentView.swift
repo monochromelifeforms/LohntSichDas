@@ -66,14 +66,23 @@ struct ContentView: View {
 
             Spacer()
 
-            // Travel time and average speed
-            HStack(spacing: 32) {
+            // Travel time, distance, and average speed
+            HStack(spacing: 24) {
                 VStack(spacing: 8) {
                     Text("Fahrzeit")
                         .font(.headline)
                         .foregroundStyle(.secondary)
                     Text(formattedTravelTime)
-                        .font(.system(size: 28, weight: .semibold, design: .monospaced))
+                        .font(.system(size: 24, weight: .semibold, design: .monospaced))
+                        .monospacedDigit()
+                        .contentTransition(.numericText())
+                }
+                VStack(spacing: 8) {
+                    Text("Strecke")
+                        .font(.headline)
+                        .foregroundStyle(.secondary)
+                    Text(formattedDistance)
+                        .font(.system(size: 24, weight: .semibold, design: .monospaced))
                         .monospacedDigit()
                         .contentTransition(.numericText())
                 }
@@ -82,7 +91,7 @@ struct ContentView: View {
                         .font(.headline)
                         .foregroundStyle(.secondary)
                     Text("\(Int(locationManager.averageSpeed)) km/h")
-                        .font(.system(size: 28, weight: .semibold, design: .monospaced))
+                        .font(.system(size: 24, weight: .semibold, design: .monospaced))
                         .monospacedDigit()
                         .contentTransition(.numericText())
                 }
@@ -153,6 +162,14 @@ struct ContentView: View {
         guard locationManager.travelTime > 0 else { return "0.0 %" }
         let pct = (locationManager.timeSaved / locationManager.travelTime) * 100
         return String(format: "%.1f %%", pct)
+    }
+
+    private var formattedDistance: String {
+        let km = locationManager.totalDistance / 1000
+        if km >= 100 {
+            return String(format: "%.0f km", km)
+        }
+        return String(format: "%.1f km", km)
     }
 
     private var formattedTravelTime: String {
