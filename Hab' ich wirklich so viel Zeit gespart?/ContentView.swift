@@ -99,7 +99,7 @@ struct ContentView: View {
                     Text("Durchschnitt")
                         .font(.headline)
                         .foregroundStyle(.secondary)
-                    Text("\(Int(locationManager.averageSpeed)) km/h")
+                    Text(String(format: "%.1f km/h", locationManager.averageSpeed))
                         .font(.system(size: 24, weight: .semibold, design: .monospaced))
                         .monospacedDigit()
                         .contentTransition(.numericText())
