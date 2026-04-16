@@ -10,6 +10,16 @@ struct ContentView: View {
     @State private var showSettings = false
     @State private var showHelp = false
 
+    private var speedColor: Color {
+        if locationManager.currentSpeed > locationManager.threshold {
+            return .orange
+        } else if locationManager.isDriving {
+            return .primary
+        } else {
+            return .secondary
+        }
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             HStack {
@@ -38,7 +48,9 @@ struct ContentView: View {
                 Text("\(Int(locationManager.currentSpeed))")
                     .font(.system(size: 140, weight: .bold, design: .rounded))
                     .monospacedDigit()
+                    .foregroundStyle(speedColor)
                     .contentTransition(.numericText())
+                    .animation(.easeInOut(duration: 0.3), value: speedColor)
                 Text("km/h")
                     .font(.title)
                     .foregroundStyle(.secondary)
