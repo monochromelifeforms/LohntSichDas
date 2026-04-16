@@ -62,7 +62,7 @@ struct ContentView: View {
                 Circle()
                     .trim(from: 0.11, to: 0.89)
                     .stroke(style: StrokeStyle(lineWidth: 4, lineCap: .round))
-                    .foregroundStyle(.secondary.opacity(0.4))
+                    .foregroundStyle(speedColor.opacity(0.4))
                     .rotationEffect(.degrees(90))
                     .frame(width: 320, height: 320)
                     .offset(y: -30)
