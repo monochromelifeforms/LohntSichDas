@@ -10,13 +10,6 @@ struct ContentView: View {
     @State private var showSettings = false
     @State private var showHelp = false
 
-    private var speedColor: Color {
-        let speed = locationManager.currentSpeed
-        if speed > locationManager.threshold { return .green }
-        if locationManager.isDriving { return .cyan }
-        return .white
-    }
-
     var body: some View {
         VStack(spacing: 0) {
             HStack {
@@ -25,7 +18,6 @@ struct ContentView: View {
                 } label: {
                     Image(systemName: "questionmark.circle")
                         .font(.title2)
-                        .foregroundStyle(.white.opacity(0.6))
                 }
                 .padding(.leading, 24)
                 .padding(.top, 8)
@@ -35,7 +27,6 @@ struct ContentView: View {
                 } label: {
                     Image(systemName: "gearshape")
                         .font(.title2)
-                        .foregroundStyle(.white.opacity(0.6))
                 }
                 .padding(.trailing, 24)
                 .padding(.top, 8)
@@ -47,28 +38,19 @@ struct ContentView: View {
                 Text("\(Int(locationManager.currentSpeed))")
                     .font(.system(size: 140, weight: .bold, design: .rounded))
                     .monospacedDigit()
-                    .foregroundStyle(speedColor)
                     .contentTransition(.numericText())
-                    .shadow(color: speedColor.opacity(0.6), radius: 12)
                 Text("km/h")
-                    .font(.title.weight(.medium))
-                    .foregroundStyle(.white.opacity(0.5))
+                    .font(.title)
+                    .foregroundStyle(.secondary)
                 Text("Referenz: \(Int(locationManager.threshold)) km/h")
-                    .font(.callout)
-                    .foregroundStyle(.white.opacity(0.35))
+                    .font(.title2)
+                    .foregroundStyle(.secondary)
             }
             .overlay {
                 Circle()
                     .trim(from: 0.1, to: 0.9)
-                    .stroke(
-                        AngularGradient(
-                            colors: [speedColor.opacity(0.0), speedColor.opacity(0.5), speedColor.opacity(0.0)],
-                            center: .center,
-                            startAngle: .degrees(126),
-                            endAngle: .degrees(414)
-                        ),
-                        style: StrokeStyle(lineWidth: 3, lineCap: .round)
-                    )
+                    .stroke(style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                    .foregroundStyle(.secondary.opacity(0.4))
                     .rotationEffect(.degrees(90))
                     .frame(width: 280, height: 280)
                     .offset(y: -30)
@@ -79,33 +61,50 @@ struct ContentView: View {
             // Time saved display
             VStack(spacing: 8) {
                 Text("Gesparte Zeit")
-                    .font(.subheadline.weight(.semibold))
-                    .textCase(.uppercase)
-                    .tracking(1.5)
-                    .foregroundStyle(.white.opacity(0.5))
+                    .font(.headline)
+                    .foregroundStyle(.secondary)
                 Text(formattedTimeSaved)
                     .font(.system(size: 52, weight: .semibold, design: .monospaced))
                     .monospacedDigit()
-                    .foregroundStyle(.green)
                     .contentTransition(.numericText())
-                    .shadow(color: .green.opacity(0.4), radius: 8)
                 Text(formattedPercentage)
                     .font(.title2.weight(.medium))
-                    .foregroundStyle(.green.opacity(0.7))
+                    .foregroundStyle(.secondary)
                     .contentTransition(.numericText())
             }
 
             Spacer()
 
             // Travel time, distance, and average speed
-            HStack(spacing: 0) {
-                statItem(label: "Fahrzeit", value: formattedTravelTime)
-                divider
-                statItem(label: "Strecke", value: formattedDistance)
-                divider
-                statItem(label: "Durchschnitt", value: "\(Int(locationManager.averageSpeed)) km/h")
+            HStack(spacing: 24) {
+                VStack(spacing: 8) {
+                    Text("Fahrzeit")
+                        .font(.headline)
+                        .foregroundStyle(.secondary)
+                    Text(formattedTravelTime)
+                        .font(.system(size: 24, weight: .semibold, design: .monospaced))
+                        .monospacedDigit()
+                        .contentTransition(.numericText())
+                }
+                VStack(spacing: 8) {
+                    Text("Strecke")
+                        .font(.headline)
+                        .foregroundStyle(.secondary)
+                    Text(formattedDistance)
+                        .font(.system(size: 24, weight: .semibold, design: .monospaced))
+                        .monospacedDigit()
+                        .contentTransition(.numericText())
+                }
+                VStack(spacing: 8) {
+                    Text("Durchschnitt")
+                        .font(.headline)
+                        .foregroundStyle(.secondary)
+                    Text("\(Int(locationManager.averageSpeed)) km/h")
+                        .font(.system(size: 24, weight: .semibold, design: .monospaced))
+                        .monospacedDigit()
+                        .contentTransition(.numericText())
+                }
             }
-            .padding(.horizontal, 16)
 
             Spacer()
 
@@ -118,17 +117,9 @@ struct ContentView: View {
                         .font(.headline)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(
-                            locationManager.trafficJamMode
-                                ? AnyShapeStyle(.orange.gradient)
-                                : AnyShapeStyle(.white.opacity(0.08)),
-                            in: RoundedRectangle(cornerRadius: 14)
-                        )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 14)
-                                .strokeBorder(.white.opacity(locationManager.trafficJamMode ? 0 : 0.1))
-                        )
-                        .foregroundStyle(locationManager.trafficJamMode ? .white : .white.opacity(0.8))
+                        .background(locationManager.trafficJamMode ? .orange : .gray.opacity(0.3),
+                                    in: RoundedRectangle(cornerRadius: 14))
+                        .foregroundStyle(locationManager.trafficJamMode ? .white : .primary)
                 }
 
                 Button {
@@ -138,17 +129,9 @@ struct ContentView: View {
                         .font(.headline)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(
-                            locationManager.isDriving
-                                ? AnyShapeStyle(.blue.gradient)
-                                : AnyShapeStyle(.white.opacity(0.08)),
-                            in: RoundedRectangle(cornerRadius: 14)
-                        )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 14)
-                                .strokeBorder(.white.opacity(locationManager.isDriving ? 0 : 0.1))
-                        )
-                        .foregroundStyle(locationManager.isDriving ? .white : .white.opacity(0.4))
+                        .background(locationManager.isDriving ? .blue : .gray.opacity(0.3),
+                                    in: RoundedRectangle(cornerRadius: 14))
+                        .foregroundStyle(locationManager.isDriving ? .white : .primary)
                 }
                 .disabled(!locationManager.isDriving)
             }
@@ -163,14 +146,12 @@ struct ContentView: View {
                     .font(.title2.weight(.semibold))
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(.red.gradient, in: RoundedRectangle(cornerRadius: 14))
+                    .background(.red, in: RoundedRectangle(cornerRadius: 14))
                     .foregroundStyle(.white)
             }
             .padding(.horizontal, 24)
             .padding(.bottom, 32)
         }
-        .background(Color.black)
-        .preferredColorScheme(.dark)
         .onAppear {
             locationManager.start()
             UIApplication.shared.isIdleTimerDisabled = true
@@ -184,28 +165,6 @@ struct ContentView: View {
         .sheet(isPresented: $showHelp) {
             HelpView()
         }
-    }
-
-    private func statItem(label: String, value: String) -> some View {
-        VStack(spacing: 6) {
-            Text(label)
-                .font(.caption.weight(.semibold))
-                .textCase(.uppercase)
-                .tracking(1)
-                .foregroundStyle(.white.opacity(0.45))
-            Text(value)
-                .font(.system(size: 22, weight: .semibold, design: .monospaced))
-                .monospacedDigit()
-                .foregroundStyle(.white.opacity(0.9))
-                .contentTransition(.numericText())
-        }
-        .frame(maxWidth: .infinity)
-    }
-
-    private var divider: some View {
-        Rectangle()
-            .fill(.white.opacity(0.15))
-            .frame(width: 1, height: 36)
     }
 
     private var formattedPercentage: String {
