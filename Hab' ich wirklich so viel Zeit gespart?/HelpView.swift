@@ -26,7 +26,7 @@ struct HelpView: View {
                     section(
                         icon: "speedometer",
                         title: "Geschwindigkeit",
-                        text: "Die App zeigt deine aktuelle Geschwindigkeit per GPS in km/h an."
+                        text: "Die App zeigt deine aktuelle Geschwindigkeit per GPS an – wahlweise in km/h oder mph."
                     )
 
                     section(
@@ -38,7 +38,19 @@ struct HelpView: View {
                     section(
                         icon: "timer",
                         title: "Fahrzeit",
-                        text: "Die Fahrzeit läuft, sobald du schneller als 8 km/h fährst. Sie stoppt automatisch, wenn du länger als eine Minute unter 6 km/h bleibst. Im Staumodus wird die Fahrzeit nie automatisch gestoppt."
+                        text: "Die Fahrzeit läuft, sobald du schneller als 10 km/h fährst. Sie stoppt automatisch, wenn du länger als eine Minute unter 6 km/h bleibst. Im Staumodus wird die Fahrzeit nie automatisch gestoppt."
+                    )
+
+                    section(
+                        icon: "road.lanes",
+                        title: "Strecke",
+                        text: "Zeigt die gesamte gefahrene Strecke seit dem letzten Reset an – in Kilometern oder Meilen, je nach Einstellung."
+                    )
+
+                    section(
+                        icon: "gauge.with.dots.needle.50percent",
+                        title: "Durchschnittsgeschwindigkeit",
+                        text: "Die Durchschnittsgeschwindigkeit wird aus der gefahrenen Strecke und der Fahrzeit berechnet."
                     )
 
                     section(
@@ -56,7 +68,7 @@ struct HelpView: View {
                     section(
                         icon: "gearshape",
                         title: "Einstellungen",
-                        text: "Über das Zahnrad oben rechts kannst du die Referenzgeschwindigkeit anpassen (Standard: 130 km/h)."
+                        text: "Über das Zahnrad oben rechts kannst du die Referenzgeschwindigkeit anpassen (Standard: 130 km/h bzw. 60 mph) und zwischen km/h und mph umschalten."
                     )
 
                     section(
