@@ -11,9 +11,9 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		79D7EC262F858E77008B4079 /* Hab' ich wirklich so viel Zeit gespart? */ = {
+		79D7EC262F858E77008B4079 /* LohntSichDas */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "Hab' ich wirklich so viel Zeit gespart?";
+			path = LohntSichDas;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -32,7 +32,7 @@
 		79D7EC1B2F858E77008B4079 = {
 			isa = PBXGroup;
 			children = (
-				79D7EC262F858E77008B4079 /* Hab' ich wirklich so viel Zeit gespart? */,
+				79D7EC262F858E77008B4079 /* LohntSichDas */,
 				79D7EC252F858E77008B4079 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -61,7 +61,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				79D7EC262F858E77008B4079 /* Hab' ich wirklich so viel Zeit gespart? */,
+				79D7EC262F858E77008B4079 /* LohntSichDas */,
 			);
 			name = "Hab' ich wirklich so viel Zeit gespart?";
 			packageProductDependencies = (
@@ -85,7 +85,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 79D7EC1F2F858E77008B4079 /* Build configuration list for PBXProject "Hab' ich wirklich so viel Zeit gespart?" */;
+			buildConfigurationList = 79D7EC1F2F858E77008B4079 /* Build configuration list for PBXProject "LohntSichDas" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -256,7 +256,7 @@
 				DEVELOPMENT_TEAM = XFZA57839W;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Hab--ich-wirklich-so-viel-Zeit-gespart--Info.plist";
+				INFOPLIST_FILE = "LohntSichDas-Info.plist";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Diese App braucht dauerhaften Standortzugriff, um die Geschwindigkeit und gesparte Zeit auch im Hintergrund zu erfassen.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Diese App nutzt deinen Standort, um die aktuelle Geschwindigkeit anzuzeigen und die gesparte Zeit zu berechnen.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -291,7 +291,7 @@
 				DEVELOPMENT_TEAM = XFZA57839W;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Hab--ich-wirklich-so-viel-Zeit-gespart--Info.plist";
+				INFOPLIST_FILE = "LohntSichDas-Info.plist";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Diese App braucht dauerhaften Standortzugriff, um die Geschwindigkeit und gesparte Zeit auch im Hintergrund zu erfassen.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Diese App nutzt deinen Standort, um die aktuelle Geschwindigkeit anzuzeigen und die gesparte Zeit zu berechnen.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -319,7 +319,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		79D7EC1F2F858E77008B4079 /* Build configuration list for PBXProject "Hab' ich wirklich so viel Zeit gespart?" */ = {
+		79D7EC1F2F858E77008B4079 /* Build configuration list for PBXProject "LohntSichDas" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				79D7EC2D2F858E78008B4079 /* Debug */,
