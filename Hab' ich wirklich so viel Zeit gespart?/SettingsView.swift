@@ -30,10 +30,6 @@ struct SettingsView: View {
         NavigationStack {
             Form {
                 Section {
-                    Toggle("Miles / mph", isOn: $useMiles)
-                }
-
-                Section {
                     HStack {
                         Text("Referenzgeschwindigkeit")
                         Spacer()
@@ -44,6 +40,10 @@ struct SettingsView: View {
                     Slider(value: $threshold, in: sliderRange, step: sliderStep)
                 } footer: {
                     Text("Zeitersparnis wird berechnet, wenn du schneller als \(Int(displayThreshold)) \(speedUnit) fährst.")
+                }
+
+                Section {
+                    Toggle("Miles / mph", isOn: $useMiles)
                 }
             }
             .navigationTitle("Einstellungen")
