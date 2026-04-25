@@ -20,7 +20,7 @@ struct SettingsView: View {
                             .monospacedDigit()
                             .foregroundStyle(.secondary)
                     }
-                    Slider(value: $threshold, in: 80...200, step: 5)
+                    Slider(value: $threshold, in: 50...200, step: 5)
                 } footer: {
                     Text("Zeitersparnis wird berechnet, wenn du schneller als \(Int(threshold)) km/h fährst.")
                 }
