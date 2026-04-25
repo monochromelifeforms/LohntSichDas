@@ -12,6 +12,17 @@ struct HelpView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
+                    VStack(spacing: 4) {
+                        Text("Lohnt sich das?")
+                            .font(.largeTitle.bold())
+                        Text("–oder–")
+                        Text("Hab' ich wirklich so viel Zeit gespart?")
+                            .font(.title2)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .multilineTextAlignment(.center)
+                    .padding(.bottom, 8)
+
                     section(
                         icon: "speedometer",
                         title: "Geschwindigkeit",
