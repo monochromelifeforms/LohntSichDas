@@ -43,7 +43,12 @@ struct SettingsView: View {
                 }
 
                 Section {
-                    Toggle("Miles / mph", isOn: $useMiles)
+                    Picker("Einheit", selection: $useMiles) {
+                        Text("mph").tag(true)
+                        Text("km/h").tag(false)
+                    }
+                    .pickerStyle(.segmented)
+                    .listRowBackground(Color.clear)
                 }
             }
             .navigationTitle("Einstellungen")
