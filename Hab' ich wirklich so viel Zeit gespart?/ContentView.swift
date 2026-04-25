@@ -10,6 +10,21 @@ struct ContentView: View {
     @State private var showSettings = false
     @State private var showHelp = false
 
+    private var useMiles: Bool { locationManager.useMiles }
+    private var speedUnit: String { useMiles ? "mph" : "km/h" }
+
+    private var displaySpeed: Double {
+        useMiles ? locationManager.currentSpeed / 1.60934 : locationManager.currentSpeed
+    }
+
+    private var displayThreshold: Double {
+        useMiles ? locationManager.threshold / 1.60934 : locationManager.threshold
+    }
+
+    private var displayAverageSpeed: Double {
+        useMiles ? locationManager.averageSpeed / 1.60934 : locationManager.averageSpeed
+    }
+
     private var speedColor: Color {
         if locationManager.currentSpeed > locationManager.threshold {
             return .orange
@@ -45,16 +60,16 @@ struct ContentView: View {
 
             // Speed display
             VStack(spacing: 4) {
-                Text("\(Int(locationManager.currentSpeed))")
+                Text("\(Int(displaySpeed))")
                     .font(.system(size: 140, weight: .bold, design: .rounded))
                     .monospacedDigit()
                     .foregroundStyle(speedColor)
                     .contentTransition(.numericText())
                     .animation(.easeInOut(duration: 0.3), value: speedColor)
-                Text("km/h")
+                Text(speedUnit)
                     .font(.title)
                     .foregroundStyle(.secondary)
-                Text("Referenz: \(Int(locationManager.threshold)) km/h")
+                Text("Referenz: \(Int(displayThreshold)) \(speedUnit)")
                     .font(.title2)
                     .foregroundStyle(.secondary)
             }
@@ -111,7 +126,7 @@ struct ContentView: View {
                     Text("Durchschnitt")
                         .font(.headline)
                         .foregroundStyle(.secondary)
-                    Text(String(format: "%.1f km/h", locationManager.averageSpeed))
+                    Text(String(format: "%.1f %@", displayAverageSpeed, speedUnit))
                         .font(.system(size: 24, weight: .semibold, design: .monospaced))
                         .monospacedDigit()
                         .contentTransition(.numericText())
@@ -172,7 +187,7 @@ struct ContentView: View {
             UIApplication.shared.isIdleTimerDisabled = false
         }
         .sheet(isPresented: $showSettings) {
-            SettingsView(threshold: $locationManager.threshold)
+            SettingsView(threshold: $locationManager.threshold, useMiles: $locationManager.useMiles)
         }
         .sheet(isPresented: $showHelp) {
             HelpView()
@@ -187,6 +202,13 @@ struct ContentView: View {
 
     private var formattedDistance: String {
         let km = locationManager.totalDistance / 1000
+        if useMiles {
+            let miles = km / 1.60934
+            if miles >= 100 {
+                return String(format: "%.0f mi", miles)
+            }
+            return String(format: "%.1f mi", miles)
+        }
         if km >= 100 {
             return String(format: "%.0f km", km)
         }

@@ -18,7 +18,12 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
         return (totalDistance / travelTime) * 3.6
     }
 
-    var threshold: Double = 130.0 // km/h
+    var threshold: Double = 130.0 // km/h (always stored in km/h)
+    var useMiles = false {
+        didSet {
+            threshold = useMiles ? 96.5606 : 130.0 // 60 mph or 130 km/h
+        }
+    }
     var trafficJamMode = false // when on, drive time never auto-stops
     private(set) var isDriving = false
 

@@ -7,22 +7,43 @@ import SwiftUI
 
 struct SettingsView: View {
     @Binding var threshold: Double
+    @Binding var useMiles: Bool
     @Environment(\.dismiss) private var dismiss
+
+    private var displayThreshold: Double {
+        useMiles ? threshold / 1.60934 : threshold
+    }
+
+    private var sliderRange: ClosedRange<Double> {
+        useMiles ? 48.2802...193.121 : 50...200 // 30-120 mph or 50-200 km/h
+    }
+
+    private var sliderStep: Double {
+        useMiles ? 1.60934 : 5 // 1 mph steps or 5 km/h steps
+    }
+
+    private var speedUnit: String {
+        useMiles ? "mph" : "km/h"
+    }
 
     var body: some View {
         NavigationStack {
             Form {
                 Section {
+                    Toggle("Miles / mph", isOn: $useMiles)
+                }
+
+                Section {
                     HStack {
                         Text("Referenzgeschwindigkeit")
                         Spacer()
-                        Text("\(Int(threshold)) km/h")
+                        Text("\(Int(displayThreshold)) \(speedUnit)")
                             .monospacedDigit()
                             .foregroundStyle(.secondary)
                     }
-                    Slider(value: $threshold, in: 50...200, step: 5)
+                    Slider(value: $threshold, in: sliderRange, step: sliderStep)
                 } footer: {
-                    Text("Zeitersparnis wird berechnet, wenn du schneller als \(Int(threshold)) km/h fährst.")
+                    Text("Zeitersparnis wird berechnet, wenn du schneller als \(Int(displayThreshold)) \(speedUnit) fährst.")
                 }
             }
             .navigationTitle("Einstellungen")
