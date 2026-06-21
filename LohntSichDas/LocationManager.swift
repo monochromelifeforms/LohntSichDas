@@ -32,7 +32,6 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
     var frontalArea: Double = 2.2 // m²
     var dragCoefficient: Double = 0.30 // Cd (Cw-Wert)
     var rollingResistanceCoeff: Double = 0.012 // Cr
-    var drivetrainEfficiency: Double = 0.85 // η
     var isElectric: Bool = false
     var regenEfficiency: Double = 0.70 // fraction of braking energy recovered (EV only)
 

@@ -25,13 +25,6 @@ struct SettingsView: View {
         locationManager.useMiles ? "mph" : "km/h"
     }
 
-    private var drivetrainPercent: Binding<Double> {
-        Binding(
-            get: { locationManager.drivetrainEfficiency * 100 },
-            set: { locationManager.drivetrainEfficiency = $0 / 100 }
-        )
-    }
-
     private var regenPercent: Binding<Double> {
         Binding(
             get: { locationManager.regenEfficiency * 100 },
@@ -107,18 +100,6 @@ struct SettingsView: View {
                             .multilineTextAlignment(.trailing)
                             .monospacedDigit()
                             .frame(width: 80)
-                    }
-
-                    HStack {
-                        Text("Wirkungsgrad Antrieb")
-                        Spacer()
-                        TextField("%", value: drivetrainPercent, format: .number.precision(.fractionLength(0)))
-                            .keyboardType(.numberPad)
-                            .multilineTextAlignment(.trailing)
-                            .monospacedDigit()
-                            .frame(width: 80)
-                        Text("%")
-                            .foregroundStyle(.secondary)
                     }
 
                     Toggle("Elektrofahrzeug", isOn: $locationManager.isElectric)
