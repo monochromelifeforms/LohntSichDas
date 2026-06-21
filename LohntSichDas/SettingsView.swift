@@ -25,6 +25,20 @@ struct SettingsView: View {
         locationManager.useMiles ? "mph" : "km/h"
     }
 
+    private var drivetrainPercent: Binding<Double> {
+        Binding(
+            get: { locationManager.drivetrainEfficiency * 100 },
+            set: { locationManager.drivetrainEfficiency = $0 / 100 }
+        )
+    }
+
+    private var regenPercent: Binding<Double> {
+        Binding(
+            get: { locationManager.regenEfficiency * 100 },
+            set: { locationManager.regenEfficiency = $0 / 100 }
+        )
+    }
+
     var body: some View {
         NavigationStack {
             Form {
@@ -54,47 +68,58 @@ struct SettingsView: View {
                     HStack {
                         Text("Fahrzeugmasse")
                         Spacer()
-                        Text("\(Int(locationManager.carMass)) kg")
+                        TextField("kg", value: $locationManager.carMass, format: .number.precision(.fractionLength(0)))
+                            .keyboardType(.numberPad)
+                            .multilineTextAlignment(.trailing)
                             .monospacedDigit()
+                            .frame(width: 80)
+                        Text("kg")
                             .foregroundStyle(.secondary)
                     }
-                    Slider(value: $locationManager.carMass, in: 800...3000, step: 50)
 
                     HStack {
                         Text("Stirnfläche")
                         Spacer()
-                        Text(String(format: "%.1f m²", locationManager.frontalArea))
+                        TextField("m²", value: $locationManager.frontalArea, format: .number.precision(.fractionLength(1)))
+                            .keyboardType(.decimalPad)
+                            .multilineTextAlignment(.trailing)
                             .monospacedDigit()
+                            .frame(width: 80)
+                        Text("m²")
                             .foregroundStyle(.secondary)
                     }
-                    Slider(value: $locationManager.frontalArea, in: 1.5...3.5, step: 0.1)
 
                     HStack {
                         Text("Cw-Wert")
                         Spacer()
-                        Text(String(format: "%.2f", locationManager.dragCoefficient))
+                        TextField("Cw", value: $locationManager.dragCoefficient, format: .number.precision(.fractionLength(2)))
+                            .keyboardType(.decimalPad)
+                            .multilineTextAlignment(.trailing)
                             .monospacedDigit()
-                            .foregroundStyle(.secondary)
+                            .frame(width: 80)
                     }
-                    Slider(value: $locationManager.dragCoefficient, in: 0.20...0.50, step: 0.01)
 
                     HStack {
                         Text("Rollwiderstand")
                         Spacer()
-                        Text(String(format: "%.3f", locationManager.rollingResistanceCoeff))
+                        TextField("Cr", value: $locationManager.rollingResistanceCoeff, format: .number.precision(.fractionLength(3)))
+                            .keyboardType(.decimalPad)
+                            .multilineTextAlignment(.trailing)
                             .monospacedDigit()
-                            .foregroundStyle(.secondary)
+                            .frame(width: 80)
                     }
-                    Slider(value: $locationManager.rollingResistanceCoeff, in: 0.008...0.020, step: 0.001)
 
                     HStack {
-                        Text("Antriebsstrang-Wirkungsgrad")
+                        Text("Wirkungsgrad Antrieb")
                         Spacer()
-                        Text("\(Int(locationManager.drivetrainEfficiency * 100)) %")
+                        TextField("%", value: drivetrainPercent, format: .number.precision(.fractionLength(0)))
+                            .keyboardType(.numberPad)
+                            .multilineTextAlignment(.trailing)
                             .monospacedDigit()
+                            .frame(width: 80)
+                        Text("%")
                             .foregroundStyle(.secondary)
                     }
-                    Slider(value: $locationManager.drivetrainEfficiency, in: 0.70...0.98, step: 0.01)
 
                     Toggle("Elektrofahrzeug", isOn: $locationManager.isElectric)
 
@@ -102,11 +127,14 @@ struct SettingsView: View {
                         HStack {
                             Text("Rekuperationseffizienz")
                             Spacer()
-                            Text("\(Int(locationManager.regenEfficiency * 100)) %")
+                            TextField("%", value: regenPercent, format: .number.precision(.fractionLength(0)))
+                                .keyboardType(.numberPad)
+                                .multilineTextAlignment(.trailing)
                                 .monospacedDigit()
+                                .frame(width: 80)
+                            Text("%")
                                 .foregroundStyle(.secondary)
                         }
-                        Slider(value: $locationManager.regenEfficiency, in: 0.50...0.90, step: 0.05)
                     }
                 }
             }

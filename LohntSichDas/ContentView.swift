@@ -209,7 +209,7 @@ struct ContentView: View {
 
     private var formattedExtraWork: String {
         let pct = locationManager.extraWorkPercentage
-        return String(format: "Mehrarbeit: +%.2f %%", pct)
+        return String(format: "Mehrverbrauch >%.1f %%", pct)
     }
 
     private var formattedDistance: String {
