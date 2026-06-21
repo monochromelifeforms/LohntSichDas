@@ -27,6 +27,27 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
     var trafficJamMode = false // when on, drive time never auto-stops
     private(set) var isDriving = false
 
+    // Physics model parameters (configurable)
+    var carMass: Double = 1500.0 // kg
+    var frontalArea: Double = 2.2 // m²
+    var dragCoefficient: Double = 0.30 // Cd (Cw-Wert)
+    var rollingResistanceCoeff: Double = 0.012 // Cr
+    var drivetrainEfficiency: Double = 0.85 // η
+
+    // Physics constants
+    private let airDensity: Double = 1.225 // kg/m³ at sea level, 15°C
+    private let gravity: Double = 9.81 // m/s²
+
+    // Energy accumulators (Joules)
+    var cumulativeExtraWork: Double = 0
+    var cumulativeBaselineWork: Double = 0
+    private var previousAltitude: Double?
+
+    var extraWorkPercentage: Double {
+        guard cumulativeBaselineWork > 0 else { return 0 }
+        return (cumulativeExtraWork / cumulativeBaselineWork) * 100.0
+    }
+
     private let manager = CLLocationManager()
     private var lastTimestamp: Date?
     private var lastMovingTimestamp: Date? // last time speed was > 0
@@ -52,6 +73,9 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
         totalDistance = 0
         isDriving = false
         lastMovingTimestamp = nil
+        cumulativeExtraWork = 0
+        cumulativeBaselineWork = 0
+        previousAltitude = nil
     }
 
     func stopDriving() {
@@ -85,18 +109,48 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
             if let last = lastTimestamp {
                 let dt = location.timestamp.timeIntervalSince(last)
                 if dt > 0, dt < 10 {
+                    let speedMS = location.speed // m/s
+                    let dx = speedMS * dt // distance in meters
+
                     if isDriving {
                         travelTime += dt
-                        totalDistance += location.speed * dt
+                        totalDistance += dx
+
+                        // Energy calculation
+                        let thresholdMS = threshold / 3.6
+                        let effectiveSpeed = min(speedMS, thresholdMS)
+
+                        // Baseline drag work (at capped speed, over actual distance)
+                        let baselineDrag = 0.5 * airDensity * dragCoefficient * frontalArea * pow(effectiveSpeed, 2) * dx
+
+                        // Rolling resistance work (same for both, part of baseline total)
+                        let rollingWork = rollingResistanceCoeff * carMass * gravity * dx
+
+                        // Altitude work (same for both, part of baseline total)
+                        var altitudeWork = 0.0
+                        if let prevAlt = previousAltitude, location.verticalAccuracy >= 0 {
+                            let dh = location.altitude - prevAlt
+                            altitudeWork = carMass * gravity * dh
+                        }
+
+                        cumulativeBaselineWork += baselineDrag + rollingWork + altitudeWork
+
+                        // Extra drag work (only when exceeding threshold)
+                        if speedKMH > threshold {
+                            let extraDrag = 0.5 * airDensity * dragCoefficient * frontalArea * (pow(speedMS, 2) - pow(thresholdMS, 2)) * dx
+                            cumulativeExtraWork += extraDrag
+                        }
                     }
+
                     if speedKMH > threshold {
-                        // Distance = speed * dt; time at 130 = distance / 130
-                        // Time saved = dt * (actualSpeed / 130 - 1)
                         timeSaved += dt * (speedKMH / threshold - 1)
                     }
                 }
             }
 
+            if location.verticalAccuracy >= 0 {
+                previousAltitude = location.altitude
+            }
             lastTimestamp = location.timestamp
         }
     }

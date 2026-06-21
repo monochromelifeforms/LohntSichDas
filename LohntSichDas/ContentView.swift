@@ -100,6 +100,13 @@ struct ContentView: View {
                     .contentTransition(.numericText())
             }
 
+            // Extra work percentage
+            Text(formattedExtraWork)
+                .font(.title3.weight(.medium))
+                .foregroundStyle(.orange)
+                .contentTransition(.numericText())
+                .padding(.top, 8)
+
             Spacer()
 
             // Travel time, distance, and average speed
@@ -187,7 +194,7 @@ struct ContentView: View {
             UIApplication.shared.isIdleTimerDisabled = false
         }
         .sheet(isPresented: $showSettings) {
-            SettingsView(threshold: $locationManager.threshold, useMiles: $locationManager.useMiles)
+            SettingsView(locationManager: locationManager)
         }
         .sheet(isPresented: $showHelp) {
             HelpView()
@@ -198,6 +205,11 @@ struct ContentView: View {
         guard locationManager.travelTime > 0 else { return "0.00 %" }
         let pct = (locationManager.timeSaved / locationManager.travelTime) * 100
         return String(format: "%.2f %%", pct)
+    }
+
+    private var formattedExtraWork: String {
+        let pct = locationManager.extraWorkPercentage
+        return String(format: "Mehrarbeit: +%.2f %%", pct)
     }
 
     private var formattedDistance: String {
