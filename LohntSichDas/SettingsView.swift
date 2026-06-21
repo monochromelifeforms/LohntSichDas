@@ -95,6 +95,19 @@ struct SettingsView: View {
                             .foregroundStyle(.secondary)
                     }
                     Slider(value: $locationManager.drivetrainEfficiency, in: 0.70...0.98, step: 0.01)
+
+                    Toggle("Elektrofahrzeug", isOn: $locationManager.isElectric)
+
+                    if locationManager.isElectric {
+                        HStack {
+                            Text("Rekuperationseffizienz")
+                            Spacer()
+                            Text("\(Int(locationManager.regenEfficiency * 100)) %")
+                                .monospacedDigit()
+                                .foregroundStyle(.secondary)
+                        }
+                        Slider(value: $locationManager.regenEfficiency, in: 0.50...0.90, step: 0.05)
+                    }
                 }
             }
             .navigationTitle("Einstellungen")

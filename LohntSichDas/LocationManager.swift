@@ -33,6 +33,8 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
     var dragCoefficient: Double = 0.30 // Cd (Cw-Wert)
     var rollingResistanceCoeff: Double = 0.012 // Cr
     var drivetrainEfficiency: Double = 0.85 // η
+    var isElectric: Bool = false
+    var regenEfficiency: Double = 0.70 // fraction of braking energy recovered (EV only)
 
     // Physics constants
     private let airDensity: Double = 1.225 // kg/m³ at sea level, 15°C
@@ -42,6 +44,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
     var cumulativeExtraWork: Double = 0
     var cumulativeBaselineWork: Double = 0
     private var previousAltitude: Double?
+    private var previousExcessKE: Double = 0 // excess kinetic energy above threshold
 
     var extraWorkPercentage: Double {
         guard cumulativeBaselineWork > 0 else { return 0 }
@@ -76,6 +79,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
         cumulativeExtraWork = 0
         cumulativeBaselineWork = 0
         previousAltitude = nil
+        previousExcessKE = 0
     }
 
     func stopDriving() {
@@ -140,6 +144,21 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
                             let extraDrag = 0.5 * airDensity * dragCoefficient * frontalArea * (pow(speedMS, 2) - pow(thresholdMS, 2)) * dx
                             cumulativeExtraWork += extraDrag
                         }
+
+                        // Kinetic energy tracking: excess KE above threshold
+                        let currentExcessKE = speedMS > thresholdMS
+                            ? 0.5 * carMass * (pow(speedMS, 2) - pow(thresholdMS, 2))
+                            : 0.0
+                        let deltaKE = currentExcessKE - previousExcessKE
+                        if deltaKE > 0 {
+                            // Accelerating above threshold: engine did extra work
+                            cumulativeExtraWork += deltaKE
+                        } else if deltaKE < 0, isElectric {
+                            // Decelerating: partial recovery via regenerative braking
+                            cumulativeExtraWork += deltaKE * regenEfficiency
+                        }
+                        // ICE: deltaKE < 0 means energy lost to brake heat, already counted
+                        previousExcessKE = currentExcessKE
                     }
 
                     if speedKMH > threshold {
