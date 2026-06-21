@@ -41,14 +41,14 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
     private let gravity: Double = 9.81 // m/s²
 
     // Energy accumulators (Joules)
-    var cumulativeExtraWork: Double = 0
+    var cumulativeActualWork: Double = 0
     var cumulativeBaselineWork: Double = 0
     private var previousAltitude: Double?
-    private var previousExcessKE: Double = 0 // excess kinetic energy above threshold
+    private var previousSpeedMS: Double? // for KE delta calculation
 
     var extraWorkPercentage: Double {
         guard cumulativeBaselineWork > 0 else { return 0 }
-        return (cumulativeExtraWork / cumulativeBaselineWork) * 100.0
+        return ((cumulativeActualWork - cumulativeBaselineWork) / cumulativeBaselineWork) * 100.0
     }
 
     private let manager = CLLocationManager()
@@ -76,10 +76,10 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
         totalDistance = 0
         isDriving = false
         lastMovingTimestamp = nil
-        cumulativeExtraWork = 0
+        cumulativeActualWork = 0
         cumulativeBaselineWork = 0
         previousAltitude = nil
-        previousExcessKE = 0
+        previousSpeedMS = nil
     }
 
     func stopDriving() {
@@ -122,43 +122,48 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
 
                         // Energy calculation
                         let thresholdMS = threshold / 3.6
-                        let effectiveSpeed = min(speedMS, thresholdMS)
+                        let baselineSpeed = min(speedMS, thresholdMS)
 
-                        // Baseline drag work (at capped speed, over actual distance)
-                        let baselineDrag = 0.5 * airDensity * dragCoefficient * frontalArea * pow(effectiveSpeed, 2) * dx
+                        // Drag work
+                        let dragActual = 0.5 * airDensity * dragCoefficient * frontalArea * pow(speedMS, 2) * dx
+                        let dragBaseline = 0.5 * airDensity * dragCoefficient * frontalArea * pow(baselineSpeed, 2) * dx
 
-                        // Rolling resistance work (same for both, part of baseline total)
+                        // Rolling resistance (same for both)
                         let rollingWork = rollingResistanceCoeff * carMass * gravity * dx
 
-                        // Altitude work (same for both, part of baseline total)
+                        // Altitude work (same for both)
                         var altitudeWork = 0.0
                         if let prevAlt = previousAltitude, location.verticalAccuracy >= 0 {
                             let dh = location.altitude - prevAlt
                             altitudeWork = carMass * gravity * dh
                         }
 
-                        cumulativeBaselineWork += baselineDrag + rollingWork + altitudeWork
+                        // Kinetic energy changes
+                        var keActual = 0.0
+                        var keBaseline = 0.0
+                        if let prevSpeed = previousSpeedMS {
+                            let dKE = 0.5 * carMass * (pow(speedMS, 2) - pow(prevSpeed, 2))
+                            let prevBaseline = min(prevSpeed, thresholdMS)
+                            let dKEBaseline = 0.5 * carMass * (pow(baselineSpeed, 2) - pow(prevBaseline, 2))
 
-                        // Extra drag work (only when exceeding threshold)
-                        if speedKMH > threshold {
-                            let extraDrag = 0.5 * airDensity * dragCoefficient * frontalArea * (pow(speedMS, 2) - pow(thresholdMS, 2)) * dx
-                            cumulativeExtraWork += extraDrag
+                            // KE increase = engine work; KE decrease = brake heat (ICE) or partial recovery (EV)
+                            if dKE > 0 {
+                                keActual = dKE
+                            } else if isElectric {
+                                keActual = dKE * regenEfficiency // negative → reduces work
+                            }
+
+                            if dKEBaseline > 0 {
+                                keBaseline = dKEBaseline
+                            } else if isElectric {
+                                keBaseline = dKEBaseline * regenEfficiency
+                            }
                         }
 
-                        // Kinetic energy tracking: excess KE above threshold
-                        let currentExcessKE = speedMS > thresholdMS
-                            ? 0.5 * carMass * (pow(speedMS, 2) - pow(thresholdMS, 2))
-                            : 0.0
-                        let deltaKE = currentExcessKE - previousExcessKE
-                        if deltaKE > 0 {
-                            // Accelerating above threshold: engine did extra work
-                            cumulativeExtraWork += deltaKE
-                        } else if deltaKE < 0, isElectric {
-                            // Decelerating: partial recovery via regenerative braking
-                            cumulativeExtraWork += deltaKE * regenEfficiency
-                        }
-                        // ICE: deltaKE < 0 means energy lost to brake heat, already counted
-                        previousExcessKE = currentExcessKE
+                        cumulativeActualWork += dragActual + rollingWork + altitudeWork + keActual
+                        cumulativeBaselineWork += dragBaseline + rollingWork + altitudeWork + keBaseline
+
+                        previousSpeedMS = speedMS
                     }
 
                     if speedKMH > threshold {
