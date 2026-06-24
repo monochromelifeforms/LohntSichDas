@@ -119,48 +119,62 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
                         travelTime += dt
                         totalDistance += dx
 
-                        // Energy calculation
+                        // --- Energy model (Newton / work-energy theorem) ---
+                        // W_engine = ΔKE + W_drag + W_roll + W_gravity
+                        // Positive W_engine = engine consuming fuel
+                        // Negative W_engine = braking (lost on ICE, partially recovered on EV)
+
                         let thresholdMS = threshold / 3.6
-                        let baselineSpeed = min(speedMS, thresholdMS)
 
-                        // Drag work
-                        let dragActual = 0.5 * airDensity * dragCoefficient * frontalArea * pow(speedMS, 2) * dx
-                        let dragBaseline = 0.5 * airDensity * dragCoefficient * frontalArea * pow(baselineSpeed, 2) * dx
+                        // Work against aerodynamic drag
+                        let W_drag = 0.5 * airDensity * dragCoefficient * frontalArea * pow(speedMS, 2) * dx
 
-                        // Rolling resistance (same for both)
-                        let rollingWork = rollingResistanceCoeff * carMass * gravity * dx
+                        // Work against rolling resistance
+                        let W_roll = rollingResistanceCoeff * carMass * gravity * dx
 
-                        // Altitude work (same for both)
-                        var altitudeWork = 0.0
+                        // Work against gravity (positive uphill, negative downhill)
+                        var W_gravity = 0.0
                         if let prevAlt = previousAltitude, location.verticalAccuracy >= 0 {
-                            let dh = location.altitude - prevAlt
-                            altitudeWork = carMass * gravity * dh
+                            W_gravity = carMass * gravity * (location.altitude - prevAlt)
                         }
 
-                        // Kinetic energy changes
-                        var keActual = 0.0
-                        var keBaseline = 0.0
+                        // Change in kinetic energy
+                        var deltaKE = 0.0
                         if let prevSpeed = previousSpeedMS {
-                            let dKE = 0.5 * carMass * (pow(speedMS, 2) - pow(prevSpeed, 2))
-                            let prevBaseline = min(prevSpeed, thresholdMS)
-                            let dKEBaseline = 0.5 * carMass * (pow(baselineSpeed, 2) - pow(prevBaseline, 2))
-
-                            // KE increase = engine work; KE decrease = brake heat (ICE) or partial recovery (EV)
-                            if dKE > 0 {
-                                keActual = dKE
-                            } else if isElectric {
-                                keActual = dKE * regenEfficiency // negative → reduces work
-                            }
-
-                            if dKEBaseline > 0 {
-                                keBaseline = dKEBaseline
-                            } else if isElectric {
-                                keBaseline = dKEBaseline * regenEfficiency
-                            }
+                            deltaKE = 0.5 * carMass * (pow(speedMS, 2) - pow(prevSpeed, 2))
                         }
 
-                        cumulativeActualWork += dragActual + rollingWork + altitudeWork + keActual
-                        cumulativeBaselineWork += dragBaseline + rollingWork + altitudeWork + keBaseline
+                        // Total engine work for this step
+                        let W_engine = deltaKE + W_drag + W_roll + W_gravity
+
+                        // Accumulate actual engine work
+                        if W_engine > 0 {
+                            cumulativeActualWork += W_engine
+                        } else if isElectric {
+                            // Regenerative braking recovers energy
+                            cumulativeActualWork += W_engine * regenEfficiency
+                        }
+                        // ICE with W_engine <= 0: coasting/braking, no fuel consumed
+
+                        // Baseline: what the engine would do at threshold speed
+                        if speedMS > thresholdMS {
+                            // Same distance dx, but at constant threshold speed (ΔKE = 0)
+                            let W_drag_ref = 0.5 * airDensity * dragCoefficient * frontalArea * pow(thresholdMS, 2) * dx
+                            let W_engine_ref = W_drag_ref + W_roll + W_gravity
+
+                            if W_engine_ref > 0 {
+                                cumulativeBaselineWork += W_engine_ref
+                            } else if isElectric {
+                                cumulativeBaselineWork += W_engine_ref * regenEfficiency
+                            }
+                        } else {
+                            // Below threshold: baseline = actual
+                            if W_engine > 0 {
+                                cumulativeBaselineWork += W_engine
+                            } else if isElectric {
+                                cumulativeBaselineWork += W_engine * regenEfficiency
+                            }
+                        }
 
                         previousSpeedMS = speedMS
                     }
