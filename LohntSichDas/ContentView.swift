@@ -107,6 +107,15 @@ struct ContentView: View {
                 .contentTransition(.numericText())
                 .padding(.top, 8)
 
+            // Debug: cumulative work values
+            HStack(spacing: 16) {
+                Text(String(format: "W: %.0f kJ", locationManager.cumulativeActualWork / 1000))
+                Text(String(format: "Wref: %.0f kJ", locationManager.cumulativeBaselineWork / 1000))
+            }
+            .font(.title3.monospacedDigit())
+            .foregroundStyle(.secondary)
+            .padding(.top, 4)
+
             Spacer()
 
             // Travel time, distance, and average speed
