@@ -36,6 +36,12 @@ struct HelpView: View {
                     )
 
                     section(
+                        icon: "fuelpump",
+                        title: "Mehrverbrauch",
+                        text: "Schätzt grob, wie viel mehr Kraftstoff bzw. Energie du durch das Überschreiten der Referenzgeschwindigkeit verbrauchst. Die Berechnung berücksichtigt Luftwiderstand, Rollwiderstand, Höhenunterschiede und Beschleunigung. Da reale Faktoren wie Gangwahl, Windverhältnisse, Motoreffizienz und Reifendruck nicht erfasst werden, dient der Wert nur als Anhaltspunkt. Die Fahrzeugparameter (Masse, Stirnfläche, Cw-Wert usw.) können in den Einstellungen angepasst werden."
+                    )
+
+                    section(
                         icon: "timer",
                         title: "Fahrzeit",
                         text: "Die Fahrzeit läuft, sobald du schneller als 10 km/h fährst. Sie stoppt automatisch, wenn du länger als eine Minute unter 6 km/h bleibst. Im Staumodus wird die Fahrzeit nie automatisch gestoppt."
