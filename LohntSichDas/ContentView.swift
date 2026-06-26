@@ -142,15 +142,15 @@ struct ContentView: View {
 
             // Extra work percentage
             Text(formattedExtraWork)
-                .font(.title3.weight(.medium))
+                .font(.title.bold())
                 .foregroundStyle(.orange)
                 .contentTransition(.numericText())
                 .padding(.top, 8)
 
             // Debug: cumulative work values
             HStack(spacing: 16) {
-                Text(String(format: "W: %.0f kJ", locationManager.cumulativeActualWork / 1000))
-                Text(String(format: "Wref: %.0f kJ", locationManager.cumulativeBaselineWork / 1000))
+                Text(String(format: "W: %.2f kWh", locationManager.cumulativeActualWork / 3_600_000))
+                Text(String(format: "Wref: %.2f kWh", locationManager.cumulativeBaselineWork / 3_600_000))
             }
             .font(.title3.monospacedDigit())
             .foregroundStyle(.secondary)
