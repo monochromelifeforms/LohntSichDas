@@ -30,6 +30,12 @@ struct HelpView: View {
                     )
 
                     section(
+                        icon: "bolt.fill",
+                        title: "Momentanleistung",
+                        text: "Der farbige Bogen innerhalb des Geschwindigkeitsrings zeigt die aktuelle Motorleistung an. Rot (nach rechts) bedeutet, der Motor arbeitet – je weiter der Bogen reicht, desto mehr Leistung wird abgerufen. Grün (nach links) zeigt Bremsen bzw. Rekuperation bei Elektrofahrzeugen. Der kleine Kreis links unten zeigt den Wert in kW an."
+                    )
+
+                    section(
                         icon: "clock.arrow.circlepath",
                         title: "Gesparte Zeit",
                         text: "Immer wenn du schneller als die eingestellte Referenzgeschwindigkeit fährst, berechnet die App, wie viel Zeit du im Vergleich zur Referenzgeschwindigkeit sparst. Zeit unterhalb der Referenz wird nicht abgezogen."
