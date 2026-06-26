@@ -36,8 +36,20 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
     var regenEfficiency: Double = 0.70 // fraction of braking energy recovered (EV only)
 
     // Physics constants
-    private let airDensity: Double = 1.225 // kg/m³ at sea level, 15°C
     private let gravity: Double = 9.81 // m/s²
+
+    /// Air density from the International Standard Atmosphere (ISA) model.
+    /// Valid for the troposphere (altitude < 11 km).
+    /// ρ(h) = ρ₀ × (1 − L·h / T₀)^(g·M/(R·L) − 1)
+    private func airDensity(atAltitude h: Double) -> Double {
+        let rho0 = 1.225       // kg/m³, sea level
+        let T0 = 288.15        // K, sea level temperature
+        let L = 0.0065         // K/m, temperature lapse rate
+        let gM_RL = 5.2559     // g·M/(R·L), dimensionless exponent
+        let base = 1.0 - L * h / T0
+        guard base > 0 else { return 0.3 } // above ~44 km, clamp to small value
+        return rho0 * pow(base, gM_RL - 1.0)
+    }
 
     // Energy accumulators (Joules)
     var cumulativeActualWork: Double = 0
@@ -125,9 +137,10 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
                         // Negative W_engine = braking (lost on ICE, partially recovered on EV)
 
                         let thresholdMS = threshold / 3.6
+                        let rho = airDensity(atAltitude: location.altitude)
 
                         // Work against aerodynamic drag
-                        let W_drag = 0.5 * airDensity * dragCoefficient * frontalArea * pow(speedMS, 2) * dx
+                        let W_drag = 0.5 * rho * dragCoefficient * frontalArea * pow(speedMS, 2) * dx
 
                         // Work against rolling resistance
                         let W_roll = rollingResistanceCoeff * carMass * gravity * dx
@@ -159,7 +172,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
                         // Baseline: what the engine would do at threshold speed
                         if speedMS > thresholdMS {
                             // Same distance dx, but at constant threshold speed (ΔKE = 0)
-                            let W_drag_ref = 0.5 * airDensity * dragCoefficient * frontalArea * pow(thresholdMS, 2) * dx
+                            let W_drag_ref = 0.5 * rho * dragCoefficient * frontalArea * pow(thresholdMS, 2) * dx
                             let W_engine_ref = W_drag_ref + W_roll + W_gravity
 
                             if W_engine_ref > 0 {
