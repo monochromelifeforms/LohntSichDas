@@ -10,6 +10,10 @@ struct ContentView: View {
     @State private var showSettings = false
     @State private var showHelp = false
 
+    // Power (W) at which the band reaches the 3 o'clock position.
+    // Reference: 2000 kg car at 160 km/h, Cd=0.35, A=2.5 m² ≈ 57.5 kW
+    private let powerBandScale: Double = 57500
+
     private var useMiles: Bool { locationManager.useMiles }
     private var speedUnit: String { useMiles ? "mph" : "km/h" }
 
@@ -81,6 +85,19 @@ struct ContentView: View {
                     .rotationEffect(.degrees(90))
                     .frame(width: 320, height: 320)
                     .offset(y: -30)
+
+                // Power band: extends right (positive/engine) or left (negative/braking)
+                let power = locationManager.instantaneousPower
+                let fraction = min(abs(power) / powerBandScale * 0.25, 0.39)
+                Circle()
+                    .trim(from: power >= 0 ? 0.5 : 0.5 - fraction,
+                          to: power >= 0 ? 0.5 + fraction : 0.5)
+                    .stroke(style: StrokeStyle(lineWidth: 16, lineCap: .round))
+                    .foregroundStyle(power >= 0 ? .red : .green)
+                    .rotationEffect(.degrees(90))
+                    .frame(width: 296, height: 296)
+                    .offset(y: -30)
+                    .animation(.easeInOut(duration: 0.3), value: power)
             }
 
             Spacer()
@@ -263,3 +280,5 @@ struct ContentView: View {
 #Preview {
     ContentView()
 }
+
+

@@ -54,6 +54,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
     // Energy accumulators (Joules)
     var cumulativeActualWork: Double = 0
     var cumulativeBaselineWork: Double = 0
+    var instantaneousPower: Double = 0 // Watts (W_engine / dt)
     private var previousAltitude: Double?
     private var previousSpeedMS: Double? // for KE delta calculation
 
@@ -89,6 +90,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
         lastMovingTimestamp = nil
         cumulativeActualWork = 0
         cumulativeBaselineWork = 0
+        instantaneousPower = 0
         previousAltitude = nil
         previousSpeedMS = nil
     }
@@ -105,6 +107,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
         MainActor.assumeIsolated {
             let speedKMH = location.speed * 3.6
             currentSpeed = speedKMH
+            if !isDriving { instantaneousPower = 0 }
 
             // Driving state machine: start when > 8 km/h, stop after 60s at zero
             if speedKMH > 10 {
@@ -159,6 +162,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
 
                         // Total engine work for this step
                         let W_engine = deltaKE + W_drag + W_roll + W_gravity
+                        instantaneousPower = W_engine / dt
 
                         // Accumulate actual engine work
                         if W_engine > 0 {
