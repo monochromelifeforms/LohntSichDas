@@ -41,6 +41,7 @@ struct ContentView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            Spacer().frame(height: 10)
             HStack {
                 Button {
                     showHelp = true
@@ -101,7 +102,7 @@ struct ContentView: View {
 
             }
 
-            Spacer()
+            Spacer().frame(maxHeight: 20)
 
             // Time saved display
             VStack(spacing: 8) {
