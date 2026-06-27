@@ -90,15 +90,47 @@ struct ContentView: View {
                 // Power band: extends right (positive/engine) or left (negative/braking)
                 let power = locationManager.instantaneousPower
                 let fraction = min(abs(power) / powerBandScale * 0.25, 0.39)
-                Circle()
-                    .trim(from: power >= 0 ? 0.5 : 0.5 - fraction,
-                          to: power >= 0 ? 0.5 + fraction : 0.5)
-                    .stroke(style: StrokeStyle(lineWidth: 16, lineCap: .round))
-                    .foregroundStyle(power >= 0 ? .red : .green)
-                    .rotationEffect(.degrees(90))
-                    .frame(width: 296, height: 296)
-                    .offset(y: -30)
-                    .animation(.easeInOut(duration: 1.0), value: power)
+                let bandStyle = StrokeStyle(lineWidth: 16, lineCap: .round)
+
+                if power >= 0 {
+                    // Positive power: red band (engine working)
+                    Circle()
+                        .trim(from: 0.5, to: 0.5 + fraction)
+                        .stroke(style: bandStyle)
+                        .foregroundStyle(.red)
+                        .rotationEffect(.degrees(90))
+                        .frame(width: 296, height: 296)
+                        .offset(y: -30)
+                        .animation(.easeInOut(duration: 1.0), value: power)
+                } else {
+                    // Negative power: dark green = energy lost to brakes,
+                    // bright green (closer to 12 o'clock) = energy recovered via regen.
+                    let regenFraction = locationManager.isElectric
+                        ? fraction * locationManager.regenEfficiency
+                        : 0
+
+                    // Dark green: full braking band
+                    Circle()
+                        .trim(from: 0.5 - fraction, to: 0.5)
+                        .stroke(style: bandStyle)
+                        .foregroundStyle(Color.green.opacity(0.4))
+                        .rotationEffect(.degrees(90))
+                        .frame(width: 296, height: 296)
+                        .offset(y: -30)
+                        .animation(.easeInOut(duration: 1.0), value: power)
+
+                    // Bright green: recovered portion (closest to 12 o'clock)
+                    if regenFraction > 0 {
+                        Circle()
+                            .trim(from: 0.5 - regenFraction, to: 0.5)
+                            .stroke(style: bandStyle)
+                            .foregroundStyle(.green)
+                            .rotationEffect(.degrees(90))
+                            .frame(width: 296, height: 296)
+                            .offset(y: -30)
+                            .animation(.easeInOut(duration: 1.0), value: power)
+                    }
+                }
 
             }
 
@@ -282,5 +314,9 @@ struct ContentView: View {
 #Preview {
     ContentView()
 }
+
+
+
+
 
 
