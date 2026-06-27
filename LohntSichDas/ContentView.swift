@@ -132,6 +132,28 @@ struct ContentView: View {
                     }
                 }
 
+                // Scale tick at 80 kW (falls near 4 o'clock on the ring)
+                let tickAngleDeg = 80_000 / powerBandScale * 0.25 * 360
+                let tickAngleRad = tickAngleDeg * .pi / 180
+                let labelR: Double = 190
+
+                // Tick pointing inward from ring edge
+                Rectangle()
+                    .fill(speedColor.opacity(0.6))
+                    .frame(width: 2, height: 14)
+                    .offset(y: -151)
+                    .rotationEffect(.degrees(tickAngleDeg))
+                    .offset(y: -30)
+
+                // "80 kW" label outside the ring
+                Text("80 kW")
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundStyle(speedColor.opacity(0.6))
+                    .offset(
+                        x: labelR * sin(tickAngleRad),
+                        y: -30 - labelR * cos(tickAngleRad)
+                    )
+
             }
 
             Spacer().frame(maxHeight: 20)
