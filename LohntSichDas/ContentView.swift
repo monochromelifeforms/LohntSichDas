@@ -132,8 +132,9 @@ struct ContentView: View {
                     }
                 }
 
-                // Scale tick at 80 kW (falls near 4 o'clock on the ring)
-                let tickAngleDeg = 80_000 / powerBandScale * 0.25 * 360
+                // Scale tick near 4 o'clock on the ring (multiple of 10 kW)
+                let tickPowerKW = round(130.0 / 90.0 * powerBandScale / 10000) * 10
+                let tickAngleDeg = tickPowerKW * 1000 / powerBandScale * 0.25 * 360
                 let tickAngleRad = tickAngleDeg * .pi / 180
                 let labelR: Double = 190
 
@@ -146,7 +147,7 @@ struct ContentView: View {
                     .offset(y: -30)
 
                 // "80 kW" label outside the ring
-                Text("80 kW")
+                Text("\(Int(tickPowerKW)) kW")
                     .font(.system(size: 15, weight: .medium))
                     .foregroundStyle(speedColor.opacity(0.6))
                     .offset(
