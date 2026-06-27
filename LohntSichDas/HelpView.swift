@@ -32,7 +32,7 @@ struct HelpView: View {
                     section(
                         icon: "bolt.fill",
                         title: "Momentanleistung",
-                        text: "Der farbige Bogen innerhalb des Geschwindigkeitsrings zeigt die aktuelle Motorleistung an. Rot (nach rechts) bedeutet, der Motor arbeitet – je weiter der Bogen reicht, desto mehr Leistung wird abgerufen. Grün (nach links) zeigt Bremsen bzw. Rekuperation bei Elektrofahrzeugen. Der kleine Kreis links unten zeigt den Wert in kW an."
+                        text: "Der farbige Bogen innerhalb des Geschwindigkeitsrings zeigt die aktuelle Motorleistung an. Rot (nach rechts) bedeutet, der Motor arbeitet – je weiter der Bogen reicht, desto mehr Leistung wird abgerufen. Grün (nach links) zeigt Bremsen bzw. Rekuperation bei Elektrofahrzeugen."
                     )
 
                     section(

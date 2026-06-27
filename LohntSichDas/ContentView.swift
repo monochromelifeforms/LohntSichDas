@@ -99,28 +99,6 @@ struct ContentView: View {
                     .offset(y: -30)
                     .animation(.easeInOut(duration: 0.3), value: power)
 
-                // Power readout badge (lower left of ring)
-                let kW = power / 1000
-                Text(String(format: "%.0f", kW))
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
-                    .monospacedDigit()
-                    .foregroundStyle(power >= 0 ? .red : .green)
-                    .frame(width: 88, height: 88)
-                    .background {
-                        Circle()
-                            .fill(Color(.systemBackground))
-                        Circle()
-                            .trim(from: 0.08, to: 0.92)
-                            .stroke(speedColor.opacity(0.4), lineWidth: 4)
-                            .rotationEffect(.degrees(90))
-                    }
-                    .overlay(alignment: .bottom) {
-                        Text("kW")
-                            .font(.system(size: 20, weight: .semibold))
-                            .foregroundStyle(speedColor.opacity(0.6))
-                            .offset(y: 5)
-                    }
-                    .offset(x: -140, y: 50)
             }
 
             Spacer()
