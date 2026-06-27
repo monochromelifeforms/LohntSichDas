@@ -54,9 +54,27 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
     // Energy accumulators (Joules)
     var cumulativeActualWork: Double = 0
     var cumulativeBaselineWork: Double = 0
-    var instantaneousPower: Double = 0 // Watts (W_engine / dt)
+    var instantaneousPower: Double = 0 // Watts (W_engine / dt), Kalman-filtered
     private var previousAltitude: Double?
     private var previousSpeedMS: Double? // for KE delta calculation
+
+    // Kalman filter state for instantaneous power
+    private var kalmanEstimate: Double = 0
+    private var kalmanErrorCovariance: Double = 1000 // start with high uncertainty
+    private let kalmanProcessNoise: Double = 5000 // how much we expect power to change between samples
+    private let kalmanMeasurementNoise: Double = 20000 // how noisy raw readings are
+
+    private func kalmanFilter(_ measurement: Double) -> Double {
+        // Predict (estimate stays the same, uncertainty grows)
+        let predictedCovariance = kalmanErrorCovariance + kalmanProcessNoise
+
+        // Update
+        let kalmanGain = predictedCovariance / (predictedCovariance + kalmanMeasurementNoise)
+        kalmanEstimate = kalmanEstimate + kalmanGain * (measurement - kalmanEstimate)
+        kalmanErrorCovariance = (1 - kalmanGain) * predictedCovariance
+
+        return kalmanEstimate
+    }
 
     var extraWorkPercentage: Double {
         guard cumulativeBaselineWork > 0 else { return 0 }
@@ -91,6 +109,8 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
         cumulativeActualWork = 0
         cumulativeBaselineWork = 0
         instantaneousPower = 0
+        kalmanEstimate = 0
+        kalmanErrorCovariance = 1000
         previousAltitude = nil
         previousSpeedMS = nil
     }
@@ -162,7 +182,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
 
                         // Total engine work for this step
                         let W_engine = deltaKE + W_drag + W_roll + W_gravity
-                        instantaneousPower = W_engine / dt
+                        instantaneousPower = kalmanFilter(W_engine / dt)
 
                         // Accumulate actual engine work
                         if W_engine > 0 {

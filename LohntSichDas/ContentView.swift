@@ -98,7 +98,7 @@ struct ContentView: View {
                     .rotationEffect(.degrees(90))
                     .frame(width: 296, height: 296)
                     .offset(y: -30)
-                    .animation(.easeInOut(duration: 0.3), value: power)
+                    .animation(.easeInOut(duration: 1.0), value: power)
 
             }
 
