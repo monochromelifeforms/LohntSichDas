@@ -119,6 +119,7 @@ struct SettingsView: View {
                     }
                 }
             }
+            .environment(\.locale, .autoupdatingCurrent)
             .navigationTitle("Einstellungen")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
