@@ -61,7 +61,7 @@ struct SettingsView: View {
                     HStack {
                         Text("Fahrzeugmasse")
                         Spacer()
-                        TextField("kg", value: $locationManager.carMass, format: .number.precision(.fractionLength(0)))
+                        TextField("kg", value: $locationManager.carMass, format: SystemNumberStyle(fractionDigits: 0))
                             .keyboardType(.numberPad)
                             .multilineTextAlignment(.trailing)
                             .monospacedDigit()
@@ -73,7 +73,7 @@ struct SettingsView: View {
                     HStack {
                         Text("Stirnfläche")
                         Spacer()
-                        TextField("m²", value: $locationManager.frontalArea, format: .number.precision(.fractionLength(1)))
+                        TextField("m²", value: $locationManager.frontalArea, format: SystemNumberStyle(fractionDigits: 1))
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.trailing)
                             .monospacedDigit()
@@ -85,7 +85,7 @@ struct SettingsView: View {
                     HStack {
                         Text("Cw-Wert")
                         Spacer()
-                        TextField("Cw", value: $locationManager.dragCoefficient, format: .number.precision(.fractionLength(2)))
+                        TextField("Cw", value: $locationManager.dragCoefficient, format: SystemNumberStyle(fractionDigits: 2))
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.trailing)
                             .monospacedDigit()
@@ -95,7 +95,7 @@ struct SettingsView: View {
                     HStack {
                         Text("Rollwiderstand")
                         Spacer()
-                        TextField("Cr", value: $locationManager.rollingResistanceCoeff, format: .number.precision(.fractionLength(3)))
+                        TextField("Cr", value: $locationManager.rollingResistanceCoeff, format: SystemNumberStyle(fractionDigits: 3))
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.trailing)
                             .monospacedDigit()
@@ -108,7 +108,7 @@ struct SettingsView: View {
                         HStack {
                             Text("Rekuperationseffizienz")
                             Spacer()
-                            TextField("%", value: regenPercent, format: .number.precision(.fractionLength(0)))
+                            TextField("%", value: regenPercent, format: SystemNumberStyle(fractionDigits: 0))
                                 .keyboardType(.numberPad)
                                 .multilineTextAlignment(.trailing)
                                 .monospacedDigit()
@@ -119,7 +119,6 @@ struct SettingsView: View {
                     }
                 }
             }
-            .environment(\.locale, .autoupdatingCurrent)
             .navigationTitle("Einstellungen")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -130,5 +129,48 @@ struct SettingsView: View {
                 }
             }
         }
+    }
+}
+
+/// A decimal format style backed by `NumberFormatter` so that it honors the
+/// user's custom "Number Format" override in iOS Settings → Language & Region.
+///
+/// The modern `.number` `FormatStyle` derives its separators from the locale
+/// identifier's data (e.g. `en_DE` → comma decimal) and ignores that override,
+/// whereas `NumberFormatter` reads it from `Locale.autoupdatingCurrent` — the
+/// same mechanism the system's own "Region Format Example" uses.
+struct SystemNumberStyle: ParseableFormatStyle {
+    /// Fixed number of fraction digits to display, matching the field's precision.
+    var fractionDigits: Int
+
+    func format(_ value: Double) -> String {
+        Self.formatter(fractionDigits: fractionDigits).string(from: value as NSNumber) ?? ""
+    }
+
+    var parseStrategy: SystemNumberParseStrategy {
+        SystemNumberParseStrategy(fractionDigits: fractionDigits)
+    }
+
+    /// Builds a decimal `NumberFormatter` bound to the live system locale.
+    fileprivate static func formatter(fractionDigits: Int) -> NumberFormatter {
+        let formatter = NumberFormatter()
+        formatter.locale = .autoupdatingCurrent
+        formatter.numberStyle = .decimal
+        formatter.minimumFractionDigits = fractionDigits
+        formatter.maximumFractionDigits = fractionDigits
+        return formatter
+    }
+}
+
+struct SystemNumberParseStrategy: ParseStrategy {
+    var fractionDigits: Int
+
+    func parse(_ value: String) throws -> Double {
+        // An empty field is treated as zero so the value can be cleared while editing.
+        if value.trimmingCharacters(in: .whitespaces).isEmpty { return 0 }
+        if let number = SystemNumberStyle.formatter(fractionDigits: fractionDigits).number(from: value) {
+            return number.doubleValue
+        }
+        throw CocoaError(.formatting)
     }
 }
