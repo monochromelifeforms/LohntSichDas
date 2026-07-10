@@ -64,12 +64,6 @@ struct ContentView: View {
                             }
                         }
                     }
-                    Divider()
-                    Button {
-                        showSettings = true
-                    } label: {
-                        Label("Fahrzeuge verwalten…", systemImage: "slider.horizontal.3")
-                    }
                 } label: {
                     HStack(spacing: 4) {
                         Image(systemName: "car.fill")
