@@ -183,8 +183,8 @@ struct ContentView: View {
 
             // Debug: cumulative work values
             HStack(spacing: 16) {
-                Text(String(format: "W: %.2f kWh", locationManager.cumulativeActualWork / 3_600_000))
-                Text(String(format: "Wref: %.2f kWh", locationManager.cumulativeBaselineWork / 3_600_000))
+                Text("W: \((locationManager.cumulativeActualWork / 3_600_000).systemFormatted(fractionDigits: 2)) kWh")
+                Text("Wref: \((locationManager.cumulativeBaselineWork / 3_600_000).systemFormatted(fractionDigits: 2)) kWh")
             }
             .font(.title3.monospacedDigit())
             .foregroundStyle(.secondary)
@@ -216,7 +216,7 @@ struct ContentView: View {
                     Text("Durchschnitt")
                         .font(.headline)
                         .foregroundStyle(.secondary)
-                    Text(String(format: "%.1f %@", displayAverageSpeed, speedUnit))
+                    Text("\(displayAverageSpeed.systemFormatted(fractionDigits: 1)) \(speedUnit)")
                         .font(.system(size: 24, weight: .semibold, design: .monospaced))
                         .monospacedDigit()
                         .contentTransition(.numericText())
@@ -285,29 +285,23 @@ struct ContentView: View {
     }
 
     private var formattedPercentage: String {
-        guard locationManager.travelTime > 0 else { return "0.00 %" }
+        guard locationManager.travelTime > 0 else { return "\(0.0.systemFormatted(fractionDigits: 2)) %" }
         let pct = (locationManager.timeSaved / locationManager.travelTime) * 100
-        return String(format: "%.2f %%", pct)
+        return "\(pct.systemFormatted(fractionDigits: 2)) %"
     }
 
     private var formattedExtraWork: String {
         let pct = locationManager.extraWorkPercentage
-        return String(format: "Mehrverbrauch ≥%.1f %%", pct)
+        return "Mehrverbrauch ≥\(pct.systemFormatted(fractionDigits: 1)) %"
     }
 
     private var formattedDistance: String {
         let km = locationManager.totalDistance / 1000
         if useMiles {
             let miles = km / 1.60934
-            if miles >= 100 {
-                return String(format: "%.0f mi", miles)
-            }
-            return String(format: "%.1f mi", miles)
+            return "\(miles.systemFormatted(fractionDigits: miles >= 100 ? 0 : 1)) mi"
         }
-        if km >= 100 {
-            return String(format: "%.0f km", km)
-        }
-        return String(format: "%.1f km", km)
+        return "\(km.systemFormatted(fractionDigits: km >= 100 ? 0 : 1)) km"
     }
 
     private var formattedTravelTime: String {
