@@ -4,10 +4,23 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct SettingsView: View {
     @Bindable var locationManager: LocationManager
     @Environment(\.dismiss) private var dismiss
+
+    /// Which page of the vehicle pager is showing. Mirrors the active vehicle,
+    /// except for the trailing "add a vehicle" page (tagged `addPageID`).
+    @State private var pageSelection: UUID
+
+    /// Sentinel tag for the trailing "add a vehicle" page.
+    private static let addPageID = UUID()
+
+    init(locationManager: LocationManager) {
+        _locationManager = Bindable(locationManager)
+        _pageSelection = State(initialValue: locationManager.selectedVehicleID)
+    }
 
     private var displayThreshold: Double {
         locationManager.useMiles ? locationManager.threshold / 1.60934 : locationManager.threshold
@@ -23,13 +36,6 @@ struct SettingsView: View {
 
     private var speedUnit: String {
         locationManager.useMiles ? "mph" : "km/h"
-    }
-
-    private var regenPercent: Binding<Double> {
-        Binding(
-            get: { locationManager.regenEfficiency * 100 },
-            set: { locationManager.regenEfficiency = $0 / 100 }
-        )
     }
 
     var body: some View {
@@ -57,95 +63,34 @@ struct SettingsView: View {
                     .listRowBackground(Color.clear)
                 }
 
-                Section("Fahrzeug") {
-                    Picker("Fahrzeug", selection: $locationManager.selectedVehicleID) {
+                Section {
+                    TabView(selection: $pageSelection) {
                         ForEach(locationManager.vehicles) { vehicle in
-                            Text(vehicle.displayName).tag(vehicle.id)
+                            VehicleEditor(vehicle: binding(for: vehicle))
+                                .padding(.bottom, 28) // leave room for the page dots
+                                .tag(vehicle.id)
                         }
-                    }
-
-                    HStack {
-                        Text("Name")
-                        Spacer()
-                        TextField("Auto #\(locationManager.selectedVehicle.number)",
-                                  text: $locationManager.selectedVehicleName)
-                            .multilineTextAlignment(.trailing)
-                            .foregroundStyle(.secondary)
-                    }
-
-                    Button {
-                        locationManager.addVehicle()
-                    } label: {
-                        Label("Auto hinzufügen", systemImage: "plus")
-                    }
-                }
-
-                Section("Fahrzeugparameter") {
-                    HStack {
-                        Text("Fahrzeugmasse")
-                        Spacer()
-                        TextField("kg", value: $locationManager.carMass, format: SystemNumberStyle(fractionDigits: 0))
-                            .keyboardType(.numberPad)
-                            .multilineTextAlignment(.trailing)
-                            .monospacedDigit()
-                            .frame(width: 80)
-                        Text("kg")
-                            .foregroundStyle(.secondary)
-                    }
-
-                    HStack {
-                        Text("Stirnfläche")
-                        Spacer()
-                        TextField("m²", value: $locationManager.frontalArea, format: SystemNumberStyle(fractionDigits: 1))
-                            .keyboardType(.decimalPad)
-                            .multilineTextAlignment(.trailing)
-                            .monospacedDigit()
-                            .frame(width: 80)
-                        Text("m²")
-                            .foregroundStyle(.secondary)
-                    }
-
-                    HStack {
-                        Text("Cw-Wert")
-                        Spacer()
-                        TextField("Cw", value: $locationManager.dragCoefficient, format: SystemNumberStyle(fractionDigits: 2))
-                            .keyboardType(.decimalPad)
-                            .multilineTextAlignment(.trailing)
-                            .monospacedDigit()
-                            .frame(width: 80)
-                    }
-
-                    HStack {
-                        Text("Rollwiderstand")
-                        Spacer()
-                        TextField("Cr", value: $locationManager.rollingResistanceCoeff, format: SystemNumberStyle(fractionDigits: 3))
-                            .keyboardType(.decimalPad)
-                            .multilineTextAlignment(.trailing)
-                            .monospacedDigit()
-                            .frame(width: 80)
-                    }
-
-                    Toggle("Elektrofahrzeug", isOn: $locationManager.isElectric)
-
-                    if locationManager.isElectric {
-                        HStack {
-                            Text("Rekuperationseffizienz")
-                            Spacer()
-                            TextField("%", value: regenPercent, format: SystemNumberStyle(fractionDigits: 0))
-                                .keyboardType(.numberPad)
-                                .multilineTextAlignment(.trailing)
-                                .monospacedDigit()
-                                .frame(width: 80)
-                            Text("%")
-                                .foregroundStyle(.secondary)
+                        AddVehiclePage {
+                            locationManager.addVehicle()
+                            pageSelection = locationManager.selectedVehicleID
                         }
+                        .tag(Self.addPageID)
                     }
+                    .frame(height: 380)
+                    .tabViewStyle(.page(indexDisplayMode: .always))
+                    .indexViewStyle(.page(backgroundDisplayMode: .always))
+                    .listRowInsets(EdgeInsets())
+                } header: {
+                    Text("Fahrzeug")
+                } footer: {
+                    Text("Wische seitwärts, um zwischen Fahrzeugen zu wechseln oder ein neues hinzuzufügen.")
                 }
 
                 if locationManager.vehicles.count > 1 {
                     Section {
                         Button(role: .destructive) {
                             locationManager.deleteSelectedVehicle()
+                            pageSelection = locationManager.selectedVehicleID
                         } label: {
                             Text("Dieses Auto löschen")
                                 .frame(maxWidth: .infinity)
@@ -162,7 +107,105 @@ struct SettingsView: View {
                     }
                 }
             }
+            .onChange(of: pageSelection) { _, newValue in
+                // Swiping to a real vehicle page makes it the active vehicle;
+                // the trailing "add" page leaves the selection unchanged.
+                if locationManager.vehicles.contains(where: { $0.id == newValue }) {
+                    locationManager.selectedVehicleID = newValue
+                }
+            }
+        }
+    }
+
+    /// A binding into a specific vehicle in the manager's list, so each page
+    /// edits its own car regardless of which one is currently active.
+    private func binding(for vehicle: Vehicle) -> Binding<Vehicle> {
+        Binding(
+            get: { locationManager.vehicles.first(where: { $0.id == vehicle.id }) ?? vehicle },
+            set: { newValue in
+                if let idx = locationManager.vehicles.firstIndex(where: { $0.id == vehicle.id }) {
+                    locationManager.vehicles[idx] = newValue
+                }
+            }
+        )
+    }
+}
+
+/// The editable fields for a single vehicle, laid out as one page of the pager.
+private struct VehicleEditor: View {
+    @Binding var vehicle: Vehicle
+
+    private var regenPercent: Binding<Double> {
+        Binding(
+            get: { vehicle.regenEfficiency * 100 },
+            set: { vehicle.regenEfficiency = $0 / 100 }
+        )
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            row("Name") {
+                TextField("Auto #\(vehicle.number)", text: $vehicle.name)
+                    .multilineTextAlignment(.trailing)
+                    .foregroundStyle(.secondary)
+            }
+            Divider()
+            numberRow("Fahrzeugmasse", value: $vehicle.carMass, fraction: 0, unit: "kg", keyboard: .numberPad)
+            Divider()
+            numberRow("Stirnfläche", value: $vehicle.frontalArea, fraction: 1, unit: "m²", keyboard: .decimalPad)
+            Divider()
+            numberRow("Cw-Wert", value: $vehicle.dragCoefficient, fraction: 2, unit: nil, keyboard: .decimalPad)
+            Divider()
+            numberRow("Rollwiderstand", value: $vehicle.rollingResistanceCoeff, fraction: 3, unit: nil, keyboard: .decimalPad)
+            Divider()
+            Toggle("Elektrofahrzeug", isOn: $vehicle.isElectric)
+                .padding(.vertical, 10)
+            if vehicle.isElectric {
+                Divider()
+                numberRow("Rekuperationseffizienz", value: regenPercent, fraction: 0, unit: "%", keyboard: .numberPad)
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal)
+    }
+
+    private func row<Content: View>(_ label: String, @ViewBuilder content: () -> Content) -> some View {
+        HStack {
+            Text(label)
+            Spacer()
+            content()
+        }
+        .padding(.vertical, 10)
+    }
+
+    private func numberRow(_ label: String, value: Binding<Double>, fraction: Int, unit: String?, keyboard: UIKeyboardType) -> some View {
+        row(label) {
+            TextField(label, value: value, format: SystemNumberStyle(fractionDigits: fraction))
+                .keyboardType(keyboard)
+                .multilineTextAlignment(.trailing)
+                .monospacedDigit()
+                .frame(width: 80)
+            if let unit {
+                Text(unit).foregroundStyle(.secondary)
+            }
         }
     }
 }
 
+/// The trailing pager page: a single button that adds a new vehicle.
+private struct AddVehiclePage: View {
+    let action: () -> Void
+
+    var body: some View {
+        VStack {
+            Spacer()
+            Button(action: action) {
+                Label("Auto hinzufügen", systemImage: "plus.circle.fill")
+                    .font(.title3.weight(.medium))
+            }
+            Spacer()
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.bottom, 28)
+    }
+}
