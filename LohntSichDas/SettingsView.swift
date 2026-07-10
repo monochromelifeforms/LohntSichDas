@@ -66,7 +66,8 @@ struct SettingsView: View {
                 Section {
                     TabView(selection: $pageSelection) {
                         ForEach(locationManager.vehicles) { vehicle in
-                            VehicleEditor(vehicle: binding(for: vehicle))
+                            VehicleEditor(vehicle: binding(for: vehicle),
+                                          powerUnit: $locationManager.powerUnit)
                                 .padding(.bottom, 28) // leave room for the page dots
                                 .tag(vehicle.id)
                         }
@@ -134,11 +135,20 @@ struct SettingsView: View {
 /// The editable fields for a single vehicle, laid out as one page of the pager.
 private struct VehicleEditor: View {
     @Binding var vehicle: Vehicle
+    @Binding var powerUnit: PowerUnit
 
     private var regenPercent: Binding<Double> {
         Binding(
             get: { vehicle.regenEfficiency * 100 },
             set: { vehicle.regenEfficiency = $0 / 100 }
+        )
+    }
+
+    /// The power in the currently selected unit (storage is always kW).
+    private var powerInUnit: Binding<Double> {
+        Binding(
+            get: { vehicle.power / powerUnit.kilowattsPerUnit },
+            set: { vehicle.power = $0 * powerUnit.kilowattsPerUnit }
         )
     }
 
@@ -148,6 +158,22 @@ private struct VehicleEditor: View {
                 TextField("Auto #\(vehicle.number)", text: $vehicle.name)
                     .multilineTextAlignment(.trailing)
                     .foregroundStyle(.secondary)
+            }
+            Divider()
+            row("Leistung") {
+                TextField("Leistung", value: powerInUnit, format: SystemNumberStyle(fractionDigits: 0))
+                    .keyboardType(.numberPad)
+                    .multilineTextAlignment(.trailing)
+                    .monospacedDigit()
+                    .frame(width: 70)
+                Picker("Einheit", selection: $powerUnit) {
+                    ForEach(PowerUnit.allCases) { unit in
+                        Text(unit.label).tag(unit)
+                    }
+                }
+                .labelsHidden()
+                .pickerStyle(.menu)
+                .fixedSize()
             }
             Divider()
             numberRow("Fahrzeugmasse", value: $vehicle.carMass, fraction: 0, unit: "kg", keyboard: .numberPad)

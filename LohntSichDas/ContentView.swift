@@ -10,9 +10,22 @@ struct ContentView: View {
     @State private var showSettings = false
     @State private var showHelp = false
 
-    // Power (W) at which the band reaches the 3 o'clock position.
-    // Reference: 2000 kg car at 160 km/h, Cd=0.35, A=2.5 m² ≈ 57.5 kW
-    private let powerBandScale: Double = 57500
+    // Ring geometry. The grey arc runs from `arcTrimStart` to `arcTrimEnd`; the
+    // power band grows from the 12 o'clock centre (`bandTrimCenter`). A full band
+    // reaches the end of the grey arc.
+    private let arcTrimStart = 0.11
+    private let arcTrimEnd = 0.89
+    private let bandTrimCenter = 0.5
+    private var maxBandFraction: Double { arcTrimEnd - bandTrimCenter }
+
+    // Drivetrain efficiency mapping the engine's rated power to power at the wheels.
+    private let drivetrainEfficiency = 0.85
+
+    // Power (W) represented by the end of the grey arc: the active vehicle's
+    // rated power delivered through the drivetrain.
+    private var powerBandScale: Double {
+        max(locationManager.selectedVehicle.power * 1000 * drivetrainEfficiency, 1_000)
+    }
 
     private var useMiles: Bool { locationManager.useMiles }
     private var speedUnit: String { useMiles ? "mph" : "km/h" }
@@ -107,22 +120,23 @@ struct ContentView: View {
             }
             .overlay {
                 Circle()
-                    .trim(from: 0.11, to: 0.89)
+                    .trim(from: arcTrimStart, to: arcTrimEnd)
                     .stroke(style: StrokeStyle(lineWidth: 4, lineCap: .round))
                     .foregroundStyle(speedColor.opacity(0.4))
                     .rotationEffect(.degrees(90))
                     .frame(width: 320, height: 320)
                     .offset(y: -30)
 
-                // Power band: extends right (positive/engine) or left (negative/braking)
+                // Power band: extends right (positive/engine) or left (negative/braking).
+                // A full band (max power at the wheels) reaches the end of the grey arc.
                 let power = locationManager.instantaneousPower
-                let fraction = min(abs(power) / powerBandScale * 0.25, 0.39)
+                let fraction = min(abs(power) / powerBandScale, 1) * maxBandFraction
                 let bandStyle = StrokeStyle(lineWidth: 16, lineCap: .round)
 
                 if power >= 0 {
                     // Positive power: red band (engine working)
                     Circle()
-                        .trim(from: 0.5, to: 0.5 + fraction)
+                        .trim(from: bandTrimCenter, to: bandTrimCenter + fraction)
                         .stroke(style: bandStyle)
                         .foregroundStyle(.red)
                         .rotationEffect(.degrees(90))
@@ -138,7 +152,7 @@ struct ContentView: View {
 
                     // Dark green: full braking band
                     Circle()
-                        .trim(from: 0.5 - fraction, to: 0.5)
+                        .trim(from: bandTrimCenter - fraction, to: bandTrimCenter)
                         .stroke(style: bandStyle)
                         .foregroundStyle(Color.green.opacity(0.4))
                         .rotationEffect(.degrees(90))
@@ -149,7 +163,7 @@ struct ContentView: View {
                     // Bright green: recovered portion (closest to 12 o'clock)
                     if regenFraction > 0 {
                         Circle()
-                            .trim(from: 0.5 - regenFraction, to: 0.5)
+                            .trim(from: bandTrimCenter - regenFraction, to: bandTrimCenter)
                             .stroke(style: bandStyle)
                             .foregroundStyle(.green)
                             .rotationEffect(.degrees(90))
@@ -159,9 +173,12 @@ struct ContentView: View {
                     }
                 }
 
-                // Scale tick near 4 o'clock on the ring (multiple of 10 kW)
-                let tickPowerKW = round(130.0 / 90.0 * powerBandScale / 10000) * 10
-                let tickAngleDeg = tickPowerKW * 1000 / powerBandScale * 0.25 * 360
+                // Scale tick near the lower-right of the ring (a "nice" multiple of 10 kW).
+                // Angle grows from 12 o'clock; the grey-arc end is `maxBandDeg`.
+                let maxBandDeg = maxBandFraction * 360
+                let tickTargetDeg = 130.0
+                let tickPowerKW = round(powerBandScale * (tickTargetDeg / maxBandDeg) / 10000) * 10
+                let tickAngleDeg = tickPowerKW * 1000 / powerBandScale * maxBandDeg
                 let tickAngleRad = tickAngleDeg * .pi / 180
                 let labelR: Double = 190
 

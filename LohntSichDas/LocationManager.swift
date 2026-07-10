@@ -41,6 +41,15 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
         }
     }
 
+    /// Unit used to enter/display engine power. Global (vehicle power is stored in kW).
+    var powerUnit: PowerUnit {
+        get {
+            access(keyPath: \.powerUnit)
+            return UserDefaults.standard.string(forKey: "powerUnit").flatMap(PowerUnit.init(rawValue:)) ?? .horsepower
+        }
+        set { withMutation(keyPath: \.powerUnit) { UserDefaults.standard.set(newValue.rawValue, forKey: "powerUnit") } }
+    }
+
     // MARK: - Vehicles
     //
     // The vehicle-specific physics parameters live on `Vehicle` values, and the

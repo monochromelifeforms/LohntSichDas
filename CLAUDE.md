@@ -88,3 +88,10 @@ This saves on every change and restores on launch — no explicit load/save step
   matching facade — do not add a global `UserDefaults` setting for it.
 - Unnamed vehicles display as "Auto #<n>" via `Vehicle.displayName`; keep new
   user-visible vehicle text German.
+- `Vehicle.power` is stored in **kW**; the entry unit (kW/HP/PS) is the global
+  `powerUnit` setting (`PowerUnit`). A new vehicle defaults to 100 HP.
+- The home-screen speed ring scales its power band to the active vehicle:
+  `powerBandScale = power(kW)·1000·drivetrainEfficiency (0.85)` is the power at
+  the **end of the grey arc**; the labelled kW tick is derived from it. When
+  adding a `Vehicle` field that Settings persists, extend `Vehicle`'s custom
+  `init(from:)` with `decodeIfPresent` so older saved vehicles still load.
