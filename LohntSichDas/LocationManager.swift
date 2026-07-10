@@ -18,22 +18,63 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
         return (totalDistance / travelTime) * 3.6
     }
 
-    var threshold: Double = 130.0 // km/h (always stored in km/h)
-    var useMiles = false {
-        didSet {
-            threshold = useMiles ? 96.5606 : 130.0 // 60 mph or 130 km/h
+    // MARK: - Persisted settings
+    //
+    // Every user-configurable setting is a computed property backed by
+    // `UserDefaults`, so it is saved the instant it changes and restored on the
+    // next launch. To add a new setting, copy the template below: a computed
+    // property that reads/writes `UserDefaults` and wraps the access in
+    // `access(keyPath:)` / `withMutation(keyPath:)` so `@Observable` keeps
+    // tracking it. The default value lives inline in the getter — that is the
+    // only place it needs to be defined.
+
+    var threshold: Double { // km/h (always stored in km/h)
+        get { access(keyPath: \.threshold); return UserDefaults.standard.object(forKey: "threshold") as? Double ?? 130.0 }
+        set { withMutation(keyPath: \.threshold) { UserDefaults.standard.set(newValue, forKey: "threshold") } }
+    }
+
+    var useMiles: Bool {
+        get { access(keyPath: \.useMiles); return UserDefaults.standard.object(forKey: "useMiles") as? Bool ?? false }
+        set {
+            withMutation(keyPath: \.useMiles) { UserDefaults.standard.set(newValue, forKey: "useMiles") }
+            threshold = newValue ? 96.5606 : 130.0 // reset reference to 60 mph or 130 km/h
         }
     }
+
+    var carMass: Double { // kg
+        get { access(keyPath: \.carMass); return UserDefaults.standard.object(forKey: "carMass") as? Double ?? 1500.0 }
+        set { withMutation(keyPath: \.carMass) { UserDefaults.standard.set(newValue, forKey: "carMass") } }
+    }
+
+    var frontalArea: Double { // m²
+        get { access(keyPath: \.frontalArea); return UserDefaults.standard.object(forKey: "frontalArea") as? Double ?? 2.2 }
+        set { withMutation(keyPath: \.frontalArea) { UserDefaults.standard.set(newValue, forKey: "frontalArea") } }
+    }
+
+    var dragCoefficient: Double { // Cd (Cw-Wert)
+        get { access(keyPath: \.dragCoefficient); return UserDefaults.standard.object(forKey: "dragCoefficient") as? Double ?? 0.30 }
+        set { withMutation(keyPath: \.dragCoefficient) { UserDefaults.standard.set(newValue, forKey: "dragCoefficient") } }
+    }
+
+    var rollingResistanceCoeff: Double { // Cr
+        get { access(keyPath: \.rollingResistanceCoeff); return UserDefaults.standard.object(forKey: "rollingResistanceCoeff") as? Double ?? 0.012 }
+        set { withMutation(keyPath: \.rollingResistanceCoeff) { UserDefaults.standard.set(newValue, forKey: "rollingResistanceCoeff") } }
+    }
+
+    var isElectric: Bool {
+        get { access(keyPath: \.isElectric); return UserDefaults.standard.object(forKey: "isElectric") as? Bool ?? false }
+        set { withMutation(keyPath: \.isElectric) { UserDefaults.standard.set(newValue, forKey: "isElectric") } }
+    }
+
+    var regenEfficiency: Double { // fraction of braking energy recovered (EV only)
+        get { access(keyPath: \.regenEfficiency); return UserDefaults.standard.object(forKey: "regenEfficiency") as? Double ?? 0.70 }
+        set { withMutation(keyPath: \.regenEfficiency) { UserDefaults.standard.set(newValue, forKey: "regenEfficiency") } }
+    }
+
+    // MARK: - Transient runtime state (not persisted)
+
     var trafficJamMode = false // when on, drive time never auto-stops
     private(set) var isDriving = false
-
-    // Physics model parameters (configurable)
-    var carMass: Double = 1500.0 // kg
-    var frontalArea: Double = 2.2 // m²
-    var dragCoefficient: Double = 0.30 // Cd (Cw-Wert)
-    var rollingResistanceCoeff: Double = 0.012 // Cr
-    var isElectric: Bool = false
-    var regenEfficiency: Double = 0.70 // fraction of braking energy recovered (EV only)
 
     // Physics constants
     private let gravity: Double = 9.81 // m/s²

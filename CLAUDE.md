@@ -56,3 +56,19 @@ the decimal and grouping separators.
 - Speeds stored internally in **km/h** (`currentSpeed`, `threshold`); physics uses
   SI (m/s, m, kg, J, W). Display converts to km/h or mph based on `useMiles`.
 - Distances stored in meters; energy accumulators in Joules.
+
+## IMPORTANT: settings persistence
+
+All user-configurable **settings** must persist across app launches. In
+`LocationManager` (an `@Observable` class, so `@AppStorage` is unavailable) each
+setting is a computed property backed by `UserDefaults`, wrapped in
+`access(keyPath:)` / `withMutation(keyPath:)` so `@Observable` keeps tracking it.
+This saves on every change and restores on launch — no explicit load/save step.
+
+- **When adding a new setting**, copy the existing template in `LocationManager`:
+  a `UserDefaults`-backed computed property with its default value inline in the
+  getter. That single property is the only change required — do not reintroduce a
+  plain stored `var` for a setting.
+- Transient runtime state (current speed, drive timers, energy accumulators,
+  `isDriving`, `trafficJamMode`) stays as plain stored properties and is **not**
+  persisted; keep it under the "Transient runtime state" mark.
