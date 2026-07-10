@@ -181,14 +181,11 @@ struct ContentView: View {
                 .contentTransition(.numericText())
                 .padding(.top, 8)
 
-            // Debug: cumulative work values
-            HStack(spacing: 16) {
-                Text("W: \((locationManager.cumulativeActualWork / 3_600_000).systemFormatted(fractionDigits: 2)) kWh")
-                Text("Wref: \((locationManager.cumulativeBaselineWork / 3_600_000).systemFormatted(fractionDigits: 2)) kWh")
-            }
-            .font(.title3.monospacedDigit())
-            .foregroundStyle(.secondary)
-            .padding(.top, 4)
+            // Show cumulative work values (actual / reference).
+            Text("Arbeit: \((locationManager.cumulativeActualWork / 3_600_000).systemFormatted(fractionDigits: 2)) / \((locationManager.cumulativeBaselineWork / 3_600_000).systemFormatted(fractionDigits: 2)) kWh")
+                .font(.title3.monospacedDigit())
+                .foregroundStyle(.secondary)
+                .padding(.top, 4)
 
             Spacer()
 
