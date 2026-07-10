@@ -57,6 +57,29 @@ struct SettingsView: View {
                     .listRowBackground(Color.clear)
                 }
 
+                Section("Fahrzeug") {
+                    Picker("Fahrzeug", selection: $locationManager.selectedVehicleID) {
+                        ForEach(locationManager.vehicles) { vehicle in
+                            Text(vehicle.displayName).tag(vehicle.id)
+                        }
+                    }
+
+                    HStack {
+                        Text("Name")
+                        Spacer()
+                        TextField("Auto #\(locationManager.selectedVehicle.number)",
+                                  text: $locationManager.selectedVehicleName)
+                            .multilineTextAlignment(.trailing)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Button {
+                        locationManager.addVehicle()
+                    } label: {
+                        Label("Auto hinzufügen", systemImage: "plus")
+                    }
+                }
+
                 Section("Fahrzeugparameter") {
                     HStack {
                         Text("Fahrzeugmasse")
@@ -115,6 +138,17 @@ struct SettingsView: View {
                                 .frame(width: 80)
                             Text("%")
                                 .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+
+                if locationManager.vehicles.count > 1 {
+                    Section {
+                        Button(role: .destructive) {
+                            locationManager.deleteSelectedVehicle()
+                        } label: {
+                            Text("Dieses Auto löschen")
+                                .frame(maxWidth: .infinity)
                         }
                     }
                 }

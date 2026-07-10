@@ -14,7 +14,8 @@ While driving, it uses GPS to estimate:
 The main screen shows a speed ring with an instantaneous-power band (red =
 engine load, green = braking, bright green = recovered via regen), time saved,
 extra-work percentage, travel time, distance, and average speed. Settings
-configure the reference speed, unit (km/h or mph), and vehicle parameters.
+configure the reference speed, unit (km/h or mph), and one or more vehicles. The
+active vehicle is picked from a menu on the car name in the home-screen top bar.
 
 ## Layout
 
@@ -26,6 +27,7 @@ configure the reference speed, unit (km/h or mph), and vehicle parameters.
   and the physics/energy model. Also runs a Kalman filter to smooth the
   instantaneous-power reading.
 - `SystemNumberStyle.swift` — Shared number formatting (see rule below).
+- `Vehicle.swift` — `Codable` value type: a vehicle's name + physics parameters.
 
 ## Conventions
 
@@ -72,3 +74,17 @@ This saves on every change and restores on launch — no explicit load/save step
 - Transient runtime state (current speed, drive timers, energy accumulators,
   `isDriving`, `trafficJamMode`) stays as plain stored properties and is **not**
   persisted; keep it under the "Transient runtime state" mark.
+
+## Vehicles
+
+- Reference speed (`threshold`) and `useMiles` are **global** scalar settings.
+  The per-vehicle physics parameters (mass, frontal area, Cd, Cr, `isElectric`,
+  regen) live on `Vehicle` values.
+- `LocationManager` owns the `[Vehicle]` list and the active `selectedVehicleID`
+  (both persisted as JSON in `UserDefaults`; a legacy single-car config is
+  migrated into "Auto #1" on first launch). `carMass`, `frontalArea`, … are
+  facades onto the active vehicle, so the energy model and settings fields use
+  them unchanged. To add a per-vehicle parameter, add it to `Vehicle` and add a
+  matching facade — do not add a global `UserDefaults` setting for it.
+- Unnamed vehicles display as "Auto #<n>" via `Vehicle.displayName`; keep new
+  user-visible vehicle text German.

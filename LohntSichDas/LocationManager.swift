@@ -41,34 +41,148 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
         }
     }
 
-    var carMass: Double { // kg
-        get { access(keyPath: \.carMass); return UserDefaults.standard.object(forKey: "carMass") as? Double ?? 1500.0 }
-        set { withMutation(keyPath: \.carMass) { UserDefaults.standard.set(newValue, forKey: "carMass") } }
+    // MARK: - Vehicles
+    //
+    // The vehicle-specific physics parameters live on `Vehicle` values, and the
+    // user can configure several. The whole list plus the active selection are
+    // persisted (JSON in `UserDefaults`). The `carMass`/`frontalArea`/… facades
+    // below map to the *active* vehicle, so the energy model and the settings
+    // fields keep using them unchanged; switching cars instantly changes both.
+
+    private static let vehiclesKey = "vehicles"
+    private static let selectedVehicleIDKey = "selectedVehicleID"
+    private static let nextVehicleNumberKey = "nextVehicleNumber"
+
+    @ObservationIgnored private var _vehicles: [Vehicle] = []
+    @ObservationIgnored private var _selectedVehicleID = UUID()
+
+    var vehicles: [Vehicle] {
+        get { access(keyPath: \.vehicles); return _vehicles }
+        set { withMutation(keyPath: \.vehicles) { _vehicles = newValue; persistVehicles() } }
     }
 
-    var frontalArea: Double { // m²
-        get { access(keyPath: \.frontalArea); return UserDefaults.standard.object(forKey: "frontalArea") as? Double ?? 2.2 }
-        set { withMutation(keyPath: \.frontalArea) { UserDefaults.standard.set(newValue, forKey: "frontalArea") } }
+    var selectedVehicleID: UUID {
+        get { access(keyPath: \.selectedVehicleID); return _selectedVehicleID }
+        set {
+            withMutation(keyPath: \.selectedVehicleID) {
+                _selectedVehicleID = newValue
+                UserDefaults.standard.set(newValue.uuidString, forKey: Self.selectedVehicleIDKey)
+            }
+        }
     }
 
-    var dragCoefficient: Double { // Cd (Cw-Wert)
-        get { access(keyPath: \.dragCoefficient); return UserDefaults.standard.object(forKey: "dragCoefficient") as? Double ?? 0.30 }
-        set { withMutation(keyPath: \.dragCoefficient) { UserDefaults.standard.set(newValue, forKey: "dragCoefficient") } }
+    /// The active vehicle. Always valid: the list is never empty and the
+    /// selection is repaired at launch.
+    var selectedVehicle: Vehicle {
+        vehicles.first { $0.id == selectedVehicleID } ?? vehicles[0]
     }
 
-    var rollingResistanceCoeff: Double { // Cr
-        get { access(keyPath: \.rollingResistanceCoeff); return UserDefaults.standard.object(forKey: "rollingResistanceCoeff") as? Double ?? 0.012 }
-        set { withMutation(keyPath: \.rollingResistanceCoeff) { UserDefaults.standard.set(newValue, forKey: "rollingResistanceCoeff") } }
+    /// The active vehicle's editable name (empty means "use the default name").
+    var selectedVehicleName: String {
+        get { selectedVehicle.name }
+        set { updateSelectedVehicle { $0.name = newValue } }
     }
 
+    // Facades onto the active vehicle's physics parameters.
+    var carMass: Double {
+        get { selectedVehicle.carMass }
+        set { updateSelectedVehicle { $0.carMass = newValue } }
+    }
+    var frontalArea: Double {
+        get { selectedVehicle.frontalArea }
+        set { updateSelectedVehicle { $0.frontalArea = newValue } }
+    }
+    var dragCoefficient: Double {
+        get { selectedVehicle.dragCoefficient }
+        set { updateSelectedVehicle { $0.dragCoefficient = newValue } }
+    }
+    var rollingResistanceCoeff: Double {
+        get { selectedVehicle.rollingResistanceCoeff }
+        set { updateSelectedVehicle { $0.rollingResistanceCoeff = newValue } }
+    }
     var isElectric: Bool {
-        get { access(keyPath: \.isElectric); return UserDefaults.standard.object(forKey: "isElectric") as? Bool ?? false }
-        set { withMutation(keyPath: \.isElectric) { UserDefaults.standard.set(newValue, forKey: "isElectric") } }
+        get { selectedVehicle.isElectric }
+        set { updateSelectedVehicle { $0.isElectric = newValue } }
+    }
+    var regenEfficiency: Double {
+        get { selectedVehicle.regenEfficiency }
+        set { updateSelectedVehicle { $0.regenEfficiency = newValue } }
     }
 
-    var regenEfficiency: Double { // fraction of braking energy recovered (EV only)
-        get { access(keyPath: \.regenEfficiency); return UserDefaults.standard.object(forKey: "regenEfficiency") as? Double ?? 0.70 }
-        set { withMutation(keyPath: \.regenEfficiency) { UserDefaults.standard.set(newValue, forKey: "regenEfficiency") } }
+    /// Adds a new vehicle with default parameters and makes it active.
+    func addVehicle() {
+        let number = UserDefaults.standard.object(forKey: Self.nextVehicleNumberKey) as? Int ?? 1
+        UserDefaults.standard.set(number + 1, forKey: Self.nextVehicleNumberKey)
+        let vehicle = Vehicle(number: number)
+        vehicles.append(vehicle)
+        selectedVehicleID = vehicle.id
+    }
+
+    /// Removes the active vehicle (no-op if it is the last one) and selects a neighbour.
+    func deleteSelectedVehicle() {
+        guard vehicles.count > 1 else { return }
+        var list = vehicles
+        guard let idx = list.firstIndex(where: { $0.id == selectedVehicleID }) else { return }
+        list.remove(at: idx)
+        let neighbour = list[min(idx, list.count - 1)].id
+        vehicles = list
+        selectedVehicleID = neighbour
+    }
+
+    private func updateSelectedVehicle(_ body: (inout Vehicle) -> Void) {
+        var list = vehicles
+        guard let idx = list.firstIndex(where: { $0.id == selectedVehicleID }) else { return }
+        body(&list[idx])
+        vehicles = list
+    }
+
+    private func persistVehicles() {
+        if let data = try? JSONEncoder().encode(_vehicles) {
+            UserDefaults.standard.set(data, forKey: Self.vehiclesKey)
+        }
+    }
+
+    /// Loads the persisted vehicle list, migrating a single-car config saved by
+    /// an earlier version of the app, and repairs the active selection.
+    private func bootstrapVehicles() {
+        var loaded = Self.loadVehiclesFromDefaults()
+        var counter = UserDefaults.standard.object(forKey: Self.nextVehicleNumberKey) as? Int ?? 1
+        if loaded.isEmpty {
+            loaded = [Self.migratedInitialVehicle(number: counter)]
+            counter += 1
+        }
+        counter = max(counter, (loaded.map(\.number).max() ?? 0) + 1)
+
+        let storedID = UserDefaults.standard.string(forKey: Self.selectedVehicleIDKey).flatMap { UUID(uuidString: $0) }
+        let selected = (storedID.flatMap { id in loaded.contains { $0.id == id } ? id : nil }) ?? loaded[0].id
+
+        _vehicles = loaded
+        _selectedVehicleID = selected
+        persistVehicles()
+        UserDefaults.standard.set(counter, forKey: Self.nextVehicleNumberKey)
+        UserDefaults.standard.set(selected.uuidString, forKey: Self.selectedVehicleIDKey)
+    }
+
+    private static func loadVehiclesFromDefaults() -> [Vehicle] {
+        guard let data = UserDefaults.standard.data(forKey: vehiclesKey),
+              let decoded = try? JSONDecoder().decode([Vehicle].self, from: data)
+        else { return [] }
+        return decoded
+    }
+
+    /// Builds the first vehicle, importing any single-car config saved by an
+    /// earlier version (falling back to defaults otherwise).
+    private static func migratedInitialVehicle(number: Int) -> Vehicle {
+        let d = UserDefaults.standard
+        return Vehicle(
+            number: number,
+            carMass: d.object(forKey: "carMass") as? Double ?? 1500.0,
+            frontalArea: d.object(forKey: "frontalArea") as? Double ?? 2.2,
+            dragCoefficient: d.object(forKey: "dragCoefficient") as? Double ?? 0.30,
+            rollingResistanceCoeff: d.object(forKey: "rollingResistanceCoeff") as? Double ?? 0.012,
+            isElectric: d.object(forKey: "isElectric") as? Bool ?? false,
+            regenEfficiency: d.object(forKey: "regenEfficiency") as? Double ?? 0.70
+        )
     }
 
     // MARK: - Transient runtime state (not persisted)
@@ -129,6 +243,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
 
     override init() {
         super.init()
+        bootstrapVehicles()
         manager.delegate = self
         manager.desiredAccuracy = kCLLocationAccuracyBestForNavigation
         manager.allowsBackgroundLocationUpdates = true

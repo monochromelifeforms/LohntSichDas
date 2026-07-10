@@ -52,6 +52,36 @@ struct ContentView: View {
                 .padding(.leading, 24)
                 .padding(.top, 8)
                 Spacer()
+                Menu {
+                    ForEach(locationManager.vehicles) { vehicle in
+                        Button {
+                            locationManager.selectedVehicleID = vehicle.id
+                        } label: {
+                            if vehicle.id == locationManager.selectedVehicleID {
+                                Label(vehicle.displayName, systemImage: "checkmark")
+                            } else {
+                                Text(vehicle.displayName)
+                            }
+                        }
+                    }
+                    Divider()
+                    Button {
+                        showSettings = true
+                    } label: {
+                        Label("Fahrzeuge verwalten…", systemImage: "slider.horizontal.3")
+                    }
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "car.fill")
+                        Text(locationManager.selectedVehicle.displayName)
+                            .lineLimit(1)
+                        Image(systemName: "chevron.down")
+                            .font(.caption2)
+                    }
+                    .font(.headline)
+                }
+                .padding(.top, 8)
+                Spacer()
                 Button {
                     showSettings = true
                 } label: {
