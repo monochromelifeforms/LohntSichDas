@@ -52,30 +52,33 @@ struct ContentView: View {
                 .padding(.leading, 24)
                 .padding(.top, 8)
                 Spacer()
-                Menu {
-                    ForEach(locationManager.vehicles) { vehicle in
-                        Button {
-                            locationManager.selectedVehicleID = vehicle.id
-                        } label: {
-                            if vehicle.id == locationManager.selectedVehicleID {
-                                Label(vehicle.displayName, systemImage: "checkmark")
-                            } else {
-                                Text(vehicle.displayName)
+                // Only show the vehicle picker when there is more than one car.
+                if locationManager.vehicles.count > 1 {
+                    Menu {
+                        ForEach(locationManager.vehicles) { vehicle in
+                            Button {
+                                locationManager.selectedVehicleID = vehicle.id
+                            } label: {
+                                if vehicle.id == locationManager.selectedVehicleID {
+                                    Label(vehicle.displayName, systemImage: "checkmark")
+                                } else {
+                                    Text(vehicle.displayName)
+                                }
                             }
                         }
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "car.fill")
+                            Text(locationManager.selectedVehicle.displayName)
+                                .lineLimit(1)
+                            Image(systemName: "chevron.down")
+                                .font(.caption2)
+                        }
+                        .font(.headline)
                     }
-                } label: {
-                    HStack(spacing: 4) {
-                        Image(systemName: "car.fill")
-                        Text(locationManager.selectedVehicle.displayName)
-                            .lineLimit(1)
-                        Image(systemName: "chevron.down")
-                            .font(.caption2)
-                    }
-                    .font(.headline)
+                    .padding(.top, 8)
+                    Spacer()
                 }
-                .padding(.top, 8)
-                Spacer()
                 Button {
                     showSettings = true
                 } label: {
