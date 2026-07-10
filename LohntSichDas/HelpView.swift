@@ -32,7 +32,7 @@ struct HelpView: View {
                     section(
                         icon: "bolt.fill",
                         title: "Momentanleistung",
-                        text: "Der farbige Bogen innerhalb des Geschwindigkeitsrings zeigt die aktuelle Motorleistung an. Rot (nach rechts) bedeutet, der Motor arbeitet – je weiter der Bogen reicht, desto mehr Leistung wird abgerufen. Grün (nach links) zeigt Bremsen bzw. Rekuperation bei Elektrofahrzeugen."
+                        text: "Der farbige Bogen innerhalb des Geschwindigkeitsrings zeigt die aktuelle Motorleistung an. Er ist auf das aktive Fahrzeug skaliert: Bei voller Leistung (Fahrzeugleistung × Antriebsstrang-Wirkungsgrad von 85\u{00A0}%) reicht der Bogen bis zum Ende des grauen Rings. Rot (nach rechts) bedeutet, der Motor arbeitet; grün (nach links) zeigt Bremsen. Bei Elektrofahrzeugen kennzeichnet helles Grün den per Rekuperation zurückgewonnenen Anteil. Eine kleine Markierung am Ring nennt zur Orientierung einen Leistungswert in kW."
                     )
 
                     section(
@@ -44,7 +44,7 @@ struct HelpView: View {
                     section(
                         icon: "fuelpump",
                         title: "Mehrverbrauch",
-                        text: "Schätzt grob, wie viel mehr Kraftstoff bzw. Energie du durch das Überschreiten der Referenzgeschwindigkeit verbrauchst. Die Berechnung berücksichtigt Luftwiderstand, Rollwiderstand, Höhenunterschiede und Beschleunigung. Da reale Faktoren wie Gangwahl, Windverhältnisse, Motoreffizienz und Reifendruck nicht erfasst werden, dient der Wert nur als Anhaltspunkt. Die Fahrzeugparameter (Masse, Stirnfläche, Cw-Wert usw.) können in den Einstellungen angepasst werden."
+                        text: "Schätzt grob, wie viel mehr Kraftstoff bzw. Energie du durch das Überschreiten der Referenzgeschwindigkeit verbrauchst. Die Berechnung berücksichtigt Luftwiderstand, Rollwiderstand, Höhenunterschiede und Beschleunigung. Da reale Faktoren wie Gangwahl, Windverhältnisse, Motoreffizienz und Reifendruck nicht erfasst werden, dient der Wert nur als Anhaltspunkt. Die Parameter des aktiven Fahrzeugs (Masse, Stirnfläche, Cw-Wert usw.) können in den Einstellungen angepasst werden."
                     )
 
                     section(
@@ -78,9 +78,15 @@ struct HelpView: View {
                     )
 
                     section(
+                        icon: "car.2.fill",
+                        title: "Fahrzeuge",
+                        text: "Du kannst mehrere Fahrzeuge anlegen. In den Einstellungen wischst du seitwärts zwischen den Fahrzeugen und legst über „Auto hinzufügen“ ein weiteres an. Jedes Fahrzeug hat einen Namen (ohne Eingabe „Auto #x“) sowie eigene Parameter wie Leistung, Masse, Stirnfläche und Antriebsart. Die Leistung kann in kW, PS oder HP eingegeben werden. Sind mehrere Fahrzeuge vorhanden, wählst du das aktive Fahrzeug oben in der Mitte über den Fahrzeugnamen aus."
+                    )
+
+                    section(
                         icon: "gearshape",
                         title: "Einstellungen",
-                        text: "Über das Zahnrad oben rechts kannst du die Referenzgeschwindigkeit anpassen (Standard: 130 km/h bzw. 60 mph) und zwischen km/h und mph umschalten."
+                        text: "Über das Zahnrad oben rechts kannst du die Referenzgeschwindigkeit anpassen (Standard: 130 km/h bzw. 60 mph), zwischen km/h und mph umschalten und deine Fahrzeuge verwalten."
                     )
 
                     section(
