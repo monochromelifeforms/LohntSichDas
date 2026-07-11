@@ -13,35 +13,60 @@ import Foundation
 /// whereas `NumberFormatter` reads it from `Locale.autoupdatingCurrent` — the
 /// same mechanism the system's own "Region Format Example" uses.
 struct SystemNumberStyle: ParseableFormatStyle {
-    /// Fixed number of fraction digits to display, matching the field's precision.
-    var fractionDigits: Int
+    var minFractionDigits: Int
+    var maxFractionDigits: Int
+    var usesGrouping: Bool
+
+    /// Fixed-precision style for read-only display (always shows `fractionDigits`
+    /// decimals, e.g. "12.50").
+    init(fractionDigits: Int) {
+        self.minFractionDigits = fractionDigits
+        self.maxFractionDigits = fractionDigits
+        self.usesGrouping = true
+    }
+
+    /// Flexible style, typically for text entry: shows up to `maxFractionDigits`
+    /// decimals but never forces trailing zeros, so arbitrary decimals entered by
+    /// the user are preserved and shown rather than rounded.
+    init(minFractionDigits: Int = 0, maxFractionDigits: Int, usesGrouping: Bool = true) {
+        self.minFractionDigits = minFractionDigits
+        self.maxFractionDigits = maxFractionDigits
+        self.usesGrouping = usesGrouping
+    }
 
     func format(_ value: Double) -> String {
-        Self.formatter(fractionDigits: fractionDigits).string(from: value as NSNumber) ?? ""
+        Self.formatter(min: minFractionDigits, max: maxFractionDigits, grouping: usesGrouping)
+            .string(from: value as NSNumber) ?? ""
     }
 
     var parseStrategy: SystemNumberParseStrategy {
-        SystemNumberParseStrategy(fractionDigits: fractionDigits)
+        SystemNumberParseStrategy(usesGrouping: usesGrouping)
     }
 
     /// Builds a decimal `NumberFormatter` bound to the live system locale.
-    fileprivate static func formatter(fractionDigits: Int) -> NumberFormatter {
+    static func formatter(min: Int, max: Int, grouping: Bool) -> NumberFormatter {
         let formatter = NumberFormatter()
         formatter.locale = .autoupdatingCurrent
         formatter.numberStyle = .decimal
-        formatter.minimumFractionDigits = fractionDigits
-        formatter.maximumFractionDigits = fractionDigits
+        formatter.minimumFractionDigits = min
+        formatter.maximumFractionDigits = max
+        formatter.usesGroupingSeparator = grouping
         return formatter
     }
 }
 
 struct SystemNumberParseStrategy: ParseStrategy {
-    var fractionDigits: Int
+    var usesGrouping: Bool = true
 
     func parse(_ value: String) throws -> Double {
         // An empty field is treated as zero so the value can be cleared while editing.
         if value.trimmingCharacters(in: .whitespaces).isEmpty { return 0 }
-        if let number = SystemNumberStyle.formatter(fractionDigits: fractionDigits).number(from: value) {
+        let formatter = NumberFormatter()
+        formatter.locale = .autoupdatingCurrent
+        formatter.numberStyle = .decimal
+        formatter.usesGroupingSeparator = usesGrouping
+        formatter.maximumFractionDigits = 20 // parse without discarding typed precision
+        if let number = formatter.number(from: value) {
             return number.doubleValue
         }
         throw CocoaError(.formatting)

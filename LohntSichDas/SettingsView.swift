@@ -4,7 +4,6 @@
 //
 
 import SwiftUI
-import UIKit
 
 struct SettingsView: View {
     @Bindable var locationManager: LocationManager
@@ -137,6 +136,11 @@ private struct VehicleEditor: View {
     @Binding var vehicle: Vehicle
     @Binding var powerUnit: PowerUnit
 
+    private enum Field: Hashable {
+        case name, power, mass, frontalArea, drag, rolling, regen
+    }
+    @FocusState private var focused: Field?
+
     private var regenPercent: Binding<Double> {
         Binding(
             get: { vehicle.regenEfficiency * 100 },
@@ -154,18 +158,23 @@ private struct VehicleEditor: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            row("Name") {
+            row(.name, "Name") {
                 TextField("Auto #\(vehicle.number)", text: $vehicle.name)
                     .multilineTextAlignment(.trailing)
                     .foregroundStyle(.secondary)
+                    .focused($focused, equals: .name)
             }
             Divider()
-            row("Leistung") {
-                TextField("Leistung", value: powerInUnit, format: SystemNumberStyle(fractionDigits: 0))
-                    .keyboardType(.numberPad)
+            row(.power, "Leistung") {
+                // Power is rounded to 2 decimals (enough for kW/HP/PS, incl. when
+                // converting between units); other fields allow arbitrary decimals.
+                TextField("Leistung", value: powerInUnit,
+                          format: SystemNumberStyle(maxFractionDigits: 2, usesGrouping: false))
+                    .keyboardType(.decimalPad)
                     .multilineTextAlignment(.trailing)
                     .monospacedDigit()
                     .frame(width: 70)
+                    .focused($focused, equals: .power)
                 Picker("Einheit", selection: $powerUnit) {
                     ForEach(PowerUnit.allCases) { unit in
                         Text(unit.label).tag(unit)
@@ -176,41 +185,47 @@ private struct VehicleEditor: View {
                 .fixedSize()
             }
             Divider()
-            numberRow("Fahrzeugmasse", value: $vehicle.carMass, fraction: 0, unit: "kg", keyboard: .numberPad)
+            numberRow(.mass, "Fahrzeugmasse", value: $vehicle.carMass, unit: "kg")
             Divider()
-            numberRow("Stirnfläche", value: $vehicle.frontalArea, fraction: 1, unit: "m²", keyboard: .decimalPad)
+            numberRow(.frontalArea, "Stirnfläche", value: $vehicle.frontalArea, unit: "m²")
             Divider()
-            numberRow("Cw-Wert", value: $vehicle.dragCoefficient, fraction: 2, unit: nil, keyboard: .decimalPad)
+            numberRow(.drag, "Cw-Wert", value: $vehicle.dragCoefficient, unit: nil)
             Divider()
-            numberRow("Rollwiderstand", value: $vehicle.rollingResistanceCoeff, fraction: 3, unit: nil, keyboard: .decimalPad)
+            numberRow(.rolling, "Rollwiderstand", value: $vehicle.rollingResistanceCoeff, unit: nil)
             Divider()
             Toggle("Elektrofahrzeug", isOn: $vehicle.isElectric)
                 .padding(.vertical, 10)
             if vehicle.isElectric {
                 Divider()
-                numberRow("Rekuperationseffizienz", value: regenPercent, fraction: 0, unit: "%", keyboard: .numberPad)
+                numberRow(.regen, "Rekuperationseffizienz", value: regenPercent, unit: "%")
             }
             Spacer(minLength: 0)
         }
         .padding(.horizontal)
     }
 
-    private func row<Content: View>(_ label: String, @ViewBuilder content: () -> Content) -> some View {
+    private func row<Content: View>(_ field: Field, _ label: String, @ViewBuilder content: () -> Content) -> some View {
         HStack {
             Text(label)
             Spacer()
             content()
         }
         .padding(.vertical, 10)
+        .contentShape(Rectangle())
+        // Tapping anywhere on the row focuses its field — a much larger target
+        // than the narrow text field, which is easy to miss inside the pager.
+        .onTapGesture { focused = field }
     }
 
-    private func numberRow(_ label: String, value: Binding<Double>, fraction: Int, unit: String?, keyboard: UIKeyboardType) -> some View {
-        row(label) {
-            TextField(label, value: value, format: SystemNumberStyle(fractionDigits: fraction))
-                .keyboardType(keyboard)
+    private func numberRow(_ field: Field, _ label: String, value: Binding<Double>, unit: String?) -> some View {
+        row(field, label) {
+            TextField(label, value: value,
+                      format: SystemNumberStyle(maxFractionDigits: 8, usesGrouping: false))
+                .keyboardType(.decimalPad)
                 .multilineTextAlignment(.trailing)
                 .monospacedDigit()
-                .frame(width: 80)
+                .frame(width: 90)
+                .focused($focused, equals: field)
             if let unit {
                 Text(unit).foregroundStyle(.secondary)
             }
