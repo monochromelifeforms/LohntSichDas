@@ -168,13 +168,11 @@ private struct VehicleEditor: View {
             row(.power, "Leistung") {
                 // Power is rounded to 2 decimals (enough for kW/HP/PS, incl. when
                 // converting between units); other fields allow arbitrary decimals.
-                TextField("Leistung", value: powerInUnit,
-                          format: SystemNumberStyle(maxFractionDigits: 2, usesGrouping: false))
-                    .keyboardType(.decimalPad)
+                DecimalField(value: powerInUnit, maxFractionDigits: 2,
+                             focus: $focused, field: .power)
                     .multilineTextAlignment(.trailing)
                     .monospacedDigit()
                     .frame(width: 70)
-                    .focused($focused, equals: .power)
                 Picker("Einheit", selection: $powerUnit) {
                     ForEach(PowerUnit.allCases) { unit in
                         Text(unit.label).tag(unit)
@@ -219,17 +217,64 @@ private struct VehicleEditor: View {
 
     private func numberRow(_ field: Field, _ label: String, value: Binding<Double>, unit: String?) -> some View {
         row(field, label) {
-            TextField(label, value: value,
-                      format: SystemNumberStyle(maxFractionDigits: 8, usesGrouping: false))
-                .keyboardType(.decimalPad)
+            DecimalField(value: value, maxFractionDigits: 8, focus: $focused, field: field)
                 .multilineTextAlignment(.trailing)
                 .monospacedDigit()
                 .frame(width: 90)
-                .focused($focused, equals: field)
             if let unit {
                 Text(unit).foregroundStyle(.secondary)
             }
         }
+    }
+}
+
+/// A decimal text field driven by a raw string buffer rather than
+/// `TextField(value:format:)`.
+///
+/// `TextField(value:format:)` reparses/reformats as you type, which discards a
+/// just-typed decimal separator (you can never get past "1."). Here the text is
+/// the source of truth while editing: the model updates whenever the text parses
+/// to a number, and the text is only reformatted when the field is not focused
+/// (e.g. on blur, or when the value changes externally such as a unit switch).
+///
+/// Parsing accepts both "," and "." as the decimal separator (inputs never carry
+/// grouping separators), so it is robust regardless of what the decimal-pad key
+/// produces versus the system "Number Format" setting.
+private struct DecimalField<F: Hashable>: View {
+    @Binding var value: Double
+    var maxFractionDigits: Int
+    var focus: FocusState<F?>.Binding
+    let field: F
+
+    @State private var text = ""
+
+    var body: some View {
+        TextField("", text: $text)
+            .keyboardType(.decimalPad)
+            .focused(focus, equals: field)
+            .onChange(of: text) { _, newText in
+                if let parsed = Self.parse(newText) { value = parsed }
+            }
+            .onChange(of: value) { _, newValue in
+                if focus.wrappedValue != field { text = format(newValue) }
+            }
+            .onChange(of: focus.wrappedValue) { _, newFocus in
+                if newFocus != field { text = format(value) } // normalise on blur
+            }
+            .onAppear { text = format(value) }
+    }
+
+    private func format(_ value: Double) -> String {
+        SystemNumberStyle(minFractionDigits: 0, maxFractionDigits: maxFractionDigits, usesGrouping: false)
+            .format(value)
+    }
+
+    private static func parse(_ string: String) -> Double? {
+        let trimmed = string.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else { return nil } // keep last value while cleared
+        // Inputs never contain grouping separators, so normalise the decimal
+        // separator to "." and parse locale-independently.
+        return Double(trimmed.replacingOccurrences(of: ",", with: "."))
     }
 }
 
