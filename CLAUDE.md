@@ -36,6 +36,14 @@ active vehicle is picked from a menu on the car name in the home-screen top bar.
 - **UI-facing strings are in German.** Keep new user-visible text German.
 - Tests: Swift Testing framework; UI tests: XCUIAutomation.
 - Build via Xcode.
+- **Avoid code duplication.** Reuse the existing model, formatting, and view
+  building blocks rather than copying them. This matters especially when adding
+  an alternate presentation of the same data — e.g. a future CarPlay screen or a
+  landscape layout: share the one `LocationManager` instance, reuse the value
+  formatting (`SystemNumberStyle` / `Double.systemFormatted`) and the physics/
+  vehicle logic, and factor common UI (the speed ring, stat rows, buttons) into
+  reusable subviews used by every layout. If a piece of the current screen needs
+  to be shared, extract it into its own view rather than re-implementing it.
 
 ## IMPORTANT: number formatting
 
