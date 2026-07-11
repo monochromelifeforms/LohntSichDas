@@ -80,7 +80,7 @@ struct HelpView: View {
                     section(
                         icon: "car.2.fill",
                         title: "Fahrzeuge",
-                        text: "Du kannst mehrere Fahrzeuge anlegen. In den Einstellungen wischst du seitwärts zwischen den Fahrzeugen und legst über „Auto hinzufügen“ ein weiteres an. Jedes Fahrzeug hat einen Namen (ohne Eingabe „Auto #x“) sowie eigene Parameter wie Leistung, Masse, Stirnfläche und Antriebsart. Die Leistung kann in kW, PS oder HP eingegeben werden. Sind mehrere Fahrzeuge vorhanden, wählst du das aktive Fahrzeug oben in der Mitte über den Fahrzeugnamen aus."
+                        text: "Du kannst mehrere Fahrzeuge anlegen. In den Einstellungen wischst du seitwärts zwischen den Fahrzeugen und legst über „Fahrzeug hinzufügen“ ein weiteres an. Jedes Fahrzeug hat einen Namen (ohne Eingabe „Auto #x“) sowie eigene Parameter wie Leistung, Masse, Stirnfläche und Antriebsart. Die Leistung kann in kW, PS oder HP eingegeben werden. Sind mehrere Fahrzeuge vorhanden, wählst du das aktive Fahrzeug oben in der Mitte über den Fahrzeugnamen aus."
                     )
 
                     section(

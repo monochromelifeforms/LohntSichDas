@@ -92,7 +92,7 @@ struct SettingsView: View {
                             locationManager.deleteSelectedVehicle()
                             pageSelection = locationManager.selectedVehicleID
                         } label: {
-                            Text("Dieses Auto löschen")
+                            Text("Dieses Fahrzeug löschen")
                                 .frame(maxWidth: .infinity)
                         }
                     }
@@ -241,7 +241,7 @@ private struct AddVehiclePage: View {
         VStack {
             Spacer()
             Button(action: action) {
-                Label("Auto hinzufügen", systemImage: "plus.circle.fill")
+                Label("Fahrzeug hinzufügen", systemImage: "plus.circle.fill")
                     .font(.title3.weight(.medium))
             }
             Spacer()
