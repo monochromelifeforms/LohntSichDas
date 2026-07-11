@@ -44,6 +44,10 @@ active vehicle is picked from a menu on the car name in the home-screen top bar.
   vehicle logic, and factor common UI (the speed ring, stat rows, buttons) into
   reusable subviews used by every layout. If a piece of the current screen needs
   to be shared, extract it into its own view rather than re-implementing it.
+- **Keep the help text in sync.** Whenever a feature is added or changed in a way
+  a user would notice, update `HelpView.swift` in the same change so its German
+  explanations always match the app's current behavior. Treat this as part of
+  finishing the task, not a separate follow-up.
 
 ## IMPORTANT: number formatting
 
