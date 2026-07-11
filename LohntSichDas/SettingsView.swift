@@ -77,7 +77,7 @@ struct SettingsView: View {
                         }
                         .tag(Self.addPageID)
                     }
-                    .frame(height: 380)
+                    .frame(height: 390)
                     .tabViewStyle(.page(indexDisplayMode: .always))
                     .indexViewStyle(.page(backgroundDisplayMode: .always))
                     .listRowInsets(EdgeInsets())

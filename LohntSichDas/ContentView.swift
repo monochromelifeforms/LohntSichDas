@@ -154,7 +154,7 @@ struct ContentView: View {
                     Circle()
                         .trim(from: bandTrimCenter - fraction, to: bandTrimCenter)
                         .stroke(style: bandStyle)
-                        .foregroundStyle(Color.green.opacity(0.4))
+                        .foregroundStyle(Color.green.opacity(0.8))
                         .rotationEffect(.degrees(90))
                         .frame(width: 296, height: 296)
                         .offset(y: -30)
