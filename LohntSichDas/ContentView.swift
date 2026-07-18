@@ -52,6 +52,13 @@ struct ContentView: View {
         }
     }
 
+    /// Color for the ring and its scale markings. Follows only the driving/idle
+    /// state — it never turns orange, so exceeding the reference speed recolors
+    /// the numbers but not the ring.
+    private var ringColor: Color {
+        locationManager.isDriving ? .primary : .secondary
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             Spacer().frame(height: 10)
@@ -122,7 +129,7 @@ struct ContentView: View {
                 Circle()
                     .trim(from: arcTrimStart, to: arcTrimEnd)
                     .stroke(style: StrokeStyle(lineWidth: 4, lineCap: .round))
-                    .foregroundStyle(speedColor.opacity(0.4))
+                    .foregroundStyle(ringColor.opacity(0.4))
                     .rotationEffect(.degrees(90))
                     .frame(width: 320, height: 320)
                     .offset(y: -30)
@@ -173,31 +180,35 @@ struct ContentView: View {
                     }
                 }
 
-                // Scale tick near the lower-right of the ring (a "nice" multiple of 10 kW).
-                // Angle grows from 12 o'clock; the grey-arc end is `maxBandDeg`.
+                // Positive-side scale ticks every 10 kW; only the tick nearest the
+                // 4–5 o'clock position is labelled. Angle grows clockwise from 12 o'clock.
                 let maxBandDeg = maxBandFraction * 360
-                let tickTargetDeg = 130.0
-                let tickPowerKW = round(powerBandScale * (tickTargetDeg / maxBandDeg) / 10000) * 10
-                let tickAngleDeg = tickPowerKW * 1000 / powerBandScale * maxBandDeg
-                let tickAngleRad = tickAngleDeg * .pi / 180
                 let labelR: Double = 190
+                let maxTickKW = Int(powerBandScale / 1000)
+                let labeledKW = Int(round(powerBandScale * (130.0 / maxBandDeg) / 10000) * 10)
 
-                // Tick pointing inward from ring edge
-                Rectangle()
-                    .fill(speedColor.opacity(0.6))
-                    .frame(width: 2, height: 14)
-                    .offset(y: -151)
-                    .rotationEffect(.degrees(tickAngleDeg))
-                    .offset(y: -30)
+                ForEach(Array(stride(from: 10, through: maxTickKW, by: 10)), id: \.self) { kW in
+                    let tickAngleDeg = Double(kW) * 1000 / powerBandScale * maxBandDeg
 
-                // "80 kW" label outside the ring
-                Text("\(Int(tickPowerKW)) kW")
-                    .font(.system(size: 15, weight: .medium))
-                    .foregroundStyle(speedColor.opacity(0.6))
-                    .offset(
-                        x: labelR * sin(tickAngleRad),
-                        y: -30 - labelR * cos(tickAngleRad)
-                    )
+                    // Tick pointing inward from the ring edge.
+                    Rectangle()
+                        .fill(ringColor.opacity(0.6))
+                        .frame(width: 2, height: 14)
+                        .offset(y: -151)
+                        .rotationEffect(.degrees(tickAngleDeg))
+                        .offset(y: -30)
+
+                    if kW == labeledKW {
+                        let tickAngleRad = tickAngleDeg * .pi / 180
+                        Text("\(kW) kW")
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundStyle(ringColor.opacity(0.6))
+                            .offset(
+                                x: labelR * sin(tickAngleRad),
+                                y: -30 - labelR * cos(tickAngleRad)
+                            )
+                    }
+                }
 
             }
 

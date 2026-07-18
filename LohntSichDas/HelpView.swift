@@ -32,7 +32,7 @@ struct HelpView: View {
                     section(
                         icon: "bolt.fill",
                         title: "Momentanleistung",
-                        text: "Der farbige Bogen innerhalb des Geschwindigkeitsrings zeigt die aktuelle Motorleistung an. Er ist auf das aktive Fahrzeug skaliert: Bei voller Leistung (Fahrzeugleistung × Antriebsstrang-Wirkungsgrad von 85\u{00A0}%) reicht der Bogen bis zum Ende des grauen Rings. Rot (nach rechts) bedeutet, der Motor arbeitet; grün (nach links) zeigt Bremsen. Bei Elektrofahrzeugen kennzeichnet helles Grün den per Rekuperation zurückgewonnenen Anteil. Eine kleine Markierung am Ring nennt zur Orientierung einen Leistungswert in kW."
+                        text: "Der farbige Bogen innerhalb des Geschwindigkeitsrings zeigt die aktuelle Motorleistung an. Er ist auf das aktive Fahrzeug skaliert: Bei voller Leistung (Fahrzeugleistung × Antriebsstrang-Wirkungsgrad von 85\u{00A0}%) reicht der Bogen bis zum Ende des grauen Rings. Rot (nach rechts) bedeutet, der Motor arbeitet; grün (nach links) zeigt Bremsen. Bei Elektrofahrzeugen kennzeichnet helles Grün den per Rekuperation zurückgewonnenen Anteil. Markierungen am Ring stehen für je 10 kW; eine davon nennt zur Orientierung den Leistungswert."
                     )
 
                     section(
