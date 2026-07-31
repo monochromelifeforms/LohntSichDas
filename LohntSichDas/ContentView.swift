@@ -180,8 +180,9 @@ struct ContentView: View {
                     }
                 }
 
-                // Positive-side scale ticks every 10 kW; only the tick nearest the
-                // 4–5 o'clock position is labelled. Angle grows clockwise from 12 o'clock.
+                // Scale ticks every 10 kW on both sides (engine = right, braking =
+                // left). Only the tick nearest the 4–5 o'clock position is labelled.
+                // Angle grows clockwise from 12 o'clock; the left side mirrors it.
                 let maxBandDeg = maxBandFraction * 360
                 let labelR: Double = 190
                 let maxTickKW = Int(powerBandScale / 1000)
@@ -190,13 +191,15 @@ struct ContentView: View {
                 ForEach(Array(stride(from: 10, through: maxTickKW, by: 10)), id: \.self) { kW in
                     let tickAngleDeg = Double(kW) * 1000 / powerBandScale * maxBandDeg
 
-                    // Tick pointing inward from the ring edge.
-                    Rectangle()
-                        .fill(ringColor.opacity(0.6))
-                        .frame(width: 2, height: 14)
-                        .offset(y: -151)
-                        .rotationEffect(.degrees(tickAngleDeg))
-                        .offset(y: -30)
+                    // Ticks pointing inward from the ring edge, mirrored left and right.
+                    ForEach([tickAngleDeg, -tickAngleDeg], id: \.self) { angle in
+                        Rectangle()
+                            .fill(ringColor.opacity(0.6))
+                            .frame(width: 2, height: 14)
+                            .offset(y: -151)
+                            .rotationEffect(.degrees(angle))
+                            .offset(y: -30)
+                    }
 
                     if kW == labeledKW {
                         let tickAngleRad = tickAngleDeg * .pi / 180
