@@ -366,7 +366,7 @@ struct ContentView: View {
                 }
                 .tint(.secondary)
                 .popover(isPresented: $showArbeitHelp) {
-                    Text("Mechanische Arbeit in kWh: tatsächlich geleistete Arbeit / Arbeit bei konstanter Referenzgeschwindigkeit. Die Differenz ergibt den Mehrverbrauch.")
+                    Text("Mechanische Arbeit in kWh: tatsächlich geleistete Arbeit / Arbeit bei konstanter Referenzgeschwindigkeit. Der Quotient ergibt den Mehrverbrauch.")
                         .font(.callout)
                         .padding()
                         .frame(width: 300)
