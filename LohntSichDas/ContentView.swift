@@ -188,6 +188,13 @@ struct ContentView: View {
                 let maxTickKW = Int(powerBandScale / 1000)
                 let labeledKW = Int(round(powerBandScale * (130.0 / maxBandDeg) / 10000) * 10)
 
+                // Centre tick at 12 o'clock (0 kW boundary)
+                Rectangle()
+                    .fill(ringColor.opacity(0.6))
+                    .frame(width: 2, height: 14)
+                    .offset(y: -151)
+                    .offset(y: -30)
+
                 ForEach(Array(stride(from: 10, through: maxTickKW, by: 10)), id: \.self) { kW in
                     let tickAngleDeg = Double(kW) * 1000 / powerBandScale * maxBandDeg
 
