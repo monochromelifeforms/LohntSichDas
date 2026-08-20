@@ -219,6 +219,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
     var cumulativeActualWork: Double = 0
     var cumulativeBaselineWork: Double = 0
     var instantaneousPower: Double = 0 // Watts (W_engine / dt), Kalman-filtered
+    var peakFilteredPower: Double = 0  // highest positive filtered power observed (Watts)
     private var previousAltitude: Double?
     private var previousSpeedMS: Double? // for KE delta calculation
 
@@ -274,6 +275,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
         cumulativeActualWork = 0
         cumulativeBaselineWork = 0
         instantaneousPower = 0
+        peakFilteredPower = 0
         kalmanEstimate = 0
         kalmanErrorCovariance = 1000
         previousAltitude = nil
@@ -348,6 +350,9 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
                         // Total engine work for this step
                         let W_engine = deltaKE + W_drag + W_roll + W_gravity
                         instantaneousPower = kalmanFilter(W_engine / dt)
+                        if instantaneousPower > peakFilteredPower {
+                            peakFilteredPower = instantaneousPower
+                        }
 
                         // Accumulate actual engine work
                         if W_engine > 0 {

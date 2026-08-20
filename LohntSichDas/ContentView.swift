@@ -225,6 +225,20 @@ struct ContentView: View {
                     }
                 }
 
+                // Peak observed power (at the crank), shown below the labelled tick
+                let peakKW = locationManager.peakFilteredPower / drivetrainEfficiency / 1000
+                if peakKW >= 1 {
+                    let peakAngleDeg = Double(labeledKW) * 1000 / powerBandScale * maxBandDeg + 18
+                    let peakAngleRad = peakAngleDeg * .pi / 180
+                    Text("max \(Int(peakKW)) kW")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(ringColor.opacity(0.5))
+                        .offset(
+                            x: labelR * sin(peakAngleRad),
+                            y: -30 - labelR * cos(peakAngleRad)
+                        )
+                }
+
             }
 
             Spacer().frame(maxHeight: 20)
