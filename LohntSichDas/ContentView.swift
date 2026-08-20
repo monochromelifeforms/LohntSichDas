@@ -199,11 +199,16 @@ struct ContentView: View {
                     let tickAngleDeg = Double(kW) * 1000 / powerBandScale * maxBandDeg
 
                     // Ticks pointing inward from the ring edge, mirrored left and right.
+                    // Multiples of 50 kW get a long tick (14 pt), others a short one (8 pt).
+                    let isMajor = kW % 50 == 0
+                    let tickH: Double = isMajor ? 14 : 8
+                    let tickY: Double = -(158 - tickH / 2) // top of tick touches ring inner edge
+
                     ForEach([tickAngleDeg, -tickAngleDeg], id: \.self) { angle in
                         Rectangle()
                             .fill(ringColor.opacity(0.6))
-                            .frame(width: 2, height: 14)
-                            .offset(y: -151)
+                            .frame(width: 2, height: tickH)
+                            .offset(y: tickY)
                             .rotationEffect(.degrees(angle))
                             .offset(y: -30)
                     }
