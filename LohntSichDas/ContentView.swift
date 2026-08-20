@@ -10,6 +10,8 @@ struct ContentView: View {
     @State private var showSettings = false
     @State private var showHelp = false
     @State private var resetFlash = false
+    @State private var showMehrverbrauchHelp = false
+    @State private var showArbeitHelp = false
 
     // Ring geometry. The grey arc runs from `arcTrimStart` to `arcTrimEnd`; the
     // power band grows from the 12 o'clock centre (`bandTrimCenter`). A full band
@@ -338,13 +340,43 @@ struct ContentView: View {
 
     private var extraWorkGroup: some View {
         VStack(spacing: 2) {
-            Text(formattedExtraWork)
-                .font(.title.bold())
-                .foregroundStyle(.orange)
-                .contentTransition(.numericText())
-            Text("Arbeit: \((locationManager.cumulativeActualWork / 3_600_000).systemFormatted(fractionDigits: 2)) / \((locationManager.cumulativeBaselineWork / 3_600_000).systemFormatted(fractionDigits: 2)) kWh")
-                .font(.title3.monospacedDigit())
-                .foregroundStyle(.secondary)
+            HStack(spacing: 6) {
+                Button { showMehrverbrauchHelp.toggle() } label: {
+                    Image(systemName: "questionmark.circle")
+                        .font(.body)
+                        .foregroundStyle(.orange.opacity(0.6))
+                }
+                .popover(isPresented: $showMehrverbrauchHelp) {
+                    Text("Schätzt grob, wie viel mehr Kraftstoff bzw. Energie du durch das Überschreiten der Referenzgeschwindigkeit verbrauchst. Die Berechnung berücksichtigt Luftwiderstand, Rollwiderstand, Höhenunterschiede und Beschleunigung. Da reale Faktoren wie Gangwahl, Windverhältnisse, Motoreffizienz und Reifendruck nicht erfasst werden, dient der Wert nur als Anhaltspunkt.")
+                        .font(.callout)
+                        .padding()
+                        .frame(width: 300)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .presentationCompactAdaptation(.popover)
+                }
+                Text(formattedExtraWork)
+                    .font(.title.bold())
+                    .foregroundStyle(.orange)
+                    .contentTransition(.numericText())
+            }
+            HStack(spacing: 6) {
+                Button { showArbeitHelp.toggle() } label: {
+                    Image(systemName: "questionmark.circle")
+                        .font(.body)
+                }
+                .tint(.secondary)
+                .popover(isPresented: $showArbeitHelp) {
+                    Text("Mechanische Arbeit in kWh: tatsächlich geleistete Arbeit / Arbeit bei konstanter Referenzgeschwindigkeit. Die Differenz ergibt den Mehrverbrauch.")
+                        .font(.callout)
+                        .padding()
+                        .frame(width: 300)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .presentationCompactAdaptation(.popover)
+                }
+                Text("Arbeit: \((locationManager.cumulativeActualWork / 3_600_000).systemFormatted(fractionDigits: 2)) / \((locationManager.cumulativeBaselineWork / 3_600_000).systemFormatted(fractionDigits: 2)) kWh")
+                    .font(.title3.monospacedDigit())
+                    .foregroundStyle(.secondary)
+            }
         }
     }
 
