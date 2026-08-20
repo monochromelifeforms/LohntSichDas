@@ -243,67 +243,12 @@ struct ContentView: View {
 
             Spacer().frame(maxHeight: 20)
 
-            // Time saved display
-            VStack(spacing: 8) {
-                Text("Gesparte Zeit")
-                    .font(.headline)
-                    .foregroundStyle(.secondary)
-                Text(formattedTimeSaved)
-                    .font(.system(size: 52, weight: .semibold, design: .monospaced))
-                    .monospacedDigit()
-                    .contentTransition(.numericText())
-                Text(formattedPercentage)
-                    .font(.title2.weight(.medium))
-                    .foregroundStyle(.secondary)
-                    .contentTransition(.numericText())
-            }
-
-            // Extra work percentage
-            Text(formattedExtraWork)
-                .font(.title.bold())
-                .foregroundStyle(.orange)
-                .contentTransition(.numericText())
-                .padding(.top, 8)
-
-            // Show cumulative work values (actual / reference).
-            Text("Arbeit: \((locationManager.cumulativeActualWork / 3_600_000).systemFormatted(fractionDigits: 2)) / \((locationManager.cumulativeBaselineWork / 3_600_000).systemFormatted(fractionDigits: 2)) kWh")
-                .font(.title3.monospacedDigit())
-                .foregroundStyle(.secondary)
-                .padding(.top, 4)
+            timeSavedGroup
 
             Spacer()
-
-            // Travel time, distance, and average speed
-            HStack(spacing: 24) {
-                VStack(spacing: 8) {
-                    Text("Fahrzeit")
-                        .font(.headline)
-                        .foregroundStyle(.secondary)
-                    Text(formattedTravelTime)
-                        .font(.system(size: 24, weight: .semibold, design: .monospaced))
-                        .monospacedDigit()
-                        .contentTransition(.numericText())
-                }
-                VStack(spacing: 8) {
-                    Text("Strecke")
-                        .font(.headline)
-                        .foregroundStyle(.secondary)
-                    Text(formattedDistance)
-                        .font(.system(size: 24, weight: .semibold, design: .monospaced))
-                        .monospacedDigit()
-                        .contentTransition(.numericText())
-                }
-                VStack(spacing: 8) {
-                    Text("Durchschnitt")
-                        .font(.headline)
-                        .foregroundStyle(.secondary)
-                    Text("\(displayAverageSpeed.systemFormatted(fractionDigits: 1)) \(speedUnit)")
-                        .font(.system(size: 24, weight: .semibold, design: .monospaced))
-                        .monospacedDigit()
-                        .contentTransition(.numericText())
-                }
-            }
-
+            extraWorkGroup
+            Spacer()
+            statsGroup
             Spacer()
 
             // Staumodus and Stop buttons
@@ -363,6 +308,70 @@ struct ContentView: View {
             HelpView()
         }
     }
+
+    // MARK: - Reusable groups (for future landscape layout)
+
+    private var timeSavedGroup: some View {
+        VStack(spacing: 2) {
+            Text("Gesparte Zeit")
+                .font(.headline)
+                .foregroundStyle(.secondary)
+            Text(formattedTimeSaved)
+                .font(.system(size: 52, weight: .semibold, design: .monospaced))
+                .monospacedDigit()
+                .contentTransition(.numericText())
+            Text(formattedPercentage)
+                .font(.title2.weight(.medium))
+                .foregroundStyle(.secondary)
+                .contentTransition(.numericText())
+        }
+    }
+
+    private var extraWorkGroup: some View {
+        VStack(spacing: 2) {
+            Text(formattedExtraWork)
+                .font(.title.bold())
+                .foregroundStyle(.orange)
+                .contentTransition(.numericText())
+            Text("Arbeit: \((locationManager.cumulativeActualWork / 3_600_000).systemFormatted(fractionDigits: 2)) / \((locationManager.cumulativeBaselineWork / 3_600_000).systemFormatted(fractionDigits: 2)) kWh")
+                .font(.title3.monospacedDigit())
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private var statsGroup: some View {
+        HStack(spacing: 24) {
+            VStack(spacing: 8) {
+                Text("Fahrzeit")
+                    .font(.headline)
+                    .foregroundStyle(.secondary)
+                Text(formattedTravelTime)
+                    .font(.system(size: 24, weight: .semibold, design: .monospaced))
+                    .monospacedDigit()
+                    .contentTransition(.numericText())
+            }
+            VStack(spacing: 8) {
+                Text("Strecke")
+                    .font(.headline)
+                    .foregroundStyle(.secondary)
+                Text(formattedDistance)
+                    .font(.system(size: 24, weight: .semibold, design: .monospaced))
+                    .monospacedDigit()
+                    .contentTransition(.numericText())
+            }
+            VStack(spacing: 8) {
+                Text("Durchschnitt")
+                    .font(.headline)
+                    .foregroundStyle(.secondary)
+                Text("\(displayAverageSpeed.systemFormatted(fractionDigits: 1)) \(speedUnit)")
+                    .font(.system(size: 24, weight: .semibold, design: .monospaced))
+                    .monospacedDigit()
+                    .contentTransition(.numericText())
+            }
+        }
+    }
+
+    // MARK: - Formatters
 
     private var formattedPercentage: String {
         guard locationManager.travelTime > 0 else { return "\(0.0.systemFormatted(fractionDigits: 2)) %" }
