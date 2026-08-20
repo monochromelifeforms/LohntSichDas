@@ -9,6 +9,7 @@ struct ContentView: View {
     @State private var locationManager = LocationManager()
     @State private var showSettings = false
     @State private var showHelp = false
+    @State private var resetFlash = false
 
     // Ring geometry. The grey arc runs from `arcTrimStart` to `arcTrimEnd`; the
     // power band grows from the 12 o'clock centre (`bandTrimCenter`). A full band
@@ -288,9 +289,17 @@ struct ContentView: View {
                 .padding()
                 .background(.red, in: RoundedRectangle(cornerRadius: 14))
                 .foregroundStyle(.white)
+                .scaleEffect(resetFlash ? 0.92 : 1.0)
+                .opacity(resetFlash ? 0.6 : 1.0)
+                .animation(.easeOut(duration: 0.2), value: resetFlash)
                 .onLongPressGesture(minimumDuration: 0.8) {
                     locationManager.reset()
+                    resetFlash = true
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                        resetFlash = false
+                    }
                 }
+                .sensoryFeedback(.success, trigger: resetFlash)
             .padding(.horizontal, 24)
             .padding(.bottom, 32)
         }
