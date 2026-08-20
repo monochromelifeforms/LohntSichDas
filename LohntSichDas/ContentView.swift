@@ -336,17 +336,16 @@ struct ContentView: View {
             .padding(.horizontal, 24)
             .padding(.bottom, 12)
 
-            // Reset button
-            Button {
-                locationManager.reset()
-            } label: {
-                Text("Reset")
-                    .font(.title2.weight(.semibold))
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(.red, in: RoundedRectangle(cornerRadius: 14))
-                    .foregroundStyle(.white)
-            }
+            // Reset button — requires a long press to avoid accidental activation
+            Text("Reset (gedrückt halten)")
+                .font(.title2.weight(.semibold))
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(.red, in: RoundedRectangle(cornerRadius: 14))
+                .foregroundStyle(.white)
+                .onLongPressGesture(minimumDuration: 0.8) {
+                    locationManager.reset()
+                }
             .padding(.horizontal, 24)
             .padding(.bottom, 32)
         }
