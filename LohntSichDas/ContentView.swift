@@ -196,31 +196,24 @@ struct ContentView: View {
                     }
                 }
 
-                // Scale ticks every 10 kW on both sides (engine = right, braking =
-                // left). Only the tick nearest the 4–5 o'clock position is labelled.
-                // Angle grows clockwise from 12 o'clock; the left side mirrors it.
-                let maxBandDeg = maxBandFraction * 360
+                // Adaptive scale ticks on both sides (engine = right, braking =
+                // left). PowerScale chooses a 1-2-5 "nice" interval so there are
+                // roughly 5–10 major ticks per side at any power range.
+                let scale = PowerScale(powerBandScale: powerBandScale, maxBandFraction: maxBandFraction)
                 let labelR: Double = 190
-                let maxTickKW = Int(powerBandScale / 1000)
-                let labeledKW = Int(round(powerBandScale * (130.0 / maxBandDeg) / 10000) * 10)
 
                 // Centre tick at 12 o'clock (0 kW boundary)
                 Rectangle()
                     .fill(ringColor.opacity(0.6))
-                    .frame(width: 2, height: 14)
-                    .offset(y: -151)
+                    .frame(width: 2, height: 18)
+                    .offset(y: -149)
                     .offset(y: -30)
 
-                ForEach(Array(stride(from: 10, through: maxTickKW, by: 10)), id: \.self) { kW in
-                    let tickAngleDeg = Double(kW) * 1000 / powerBandScale * maxBandDeg
+                ForEach(scale.ticks) { tick in
+                    let tickH: Double = tick.isMajor ? 18 : 10
+                    let tickY = -(158 - tickH / 2)
 
-                    // Ticks pointing inward from the ring edge, mirrored left and right.
-                    // Multiples of 50 kW get a long tick (14 pt), others a short one (8 pt).
-                    let isMajor = kW % 50 == 0
-                    let tickH: Double = isMajor ? 14 : 8
-                    let tickY: Double = -(158 - tickH / 2) // top of tick touches ring inner edge
-
-                    ForEach([tickAngleDeg, -tickAngleDeg], id: \.self) { angle in
+                    ForEach([tick.angleDegrees, -tick.angleDegrees], id: \.self) { angle in
                         Rectangle()
                             .fill(ringColor.opacity(0.6))
                             .frame(width: 2, height: tickH)
@@ -229,14 +222,14 @@ struct ContentView: View {
                             .offset(y: -30)
                     }
 
-                    if kW == labeledKW {
-                        let tickAngleRad = tickAngleDeg * .pi / 180
-                        Text("\(kW) kW")
+                    if tick.power == scale.labeledTickPower {
+                        let rad = tick.angleDegrees * .pi / 180
+                        Text(scale.labelText)
                             .font(.system(size: 15, weight: .medium))
                             .foregroundStyle(ringColor.opacity(0.6))
                             .offset(
-                                x: labelR * sin(tickAngleRad),
-                                y: -30 - labelR * cos(tickAngleRad)
+                                x: labelR * sin(rad),
+                                y: -30 - labelR * cos(rad)
                             )
                     }
                 }
