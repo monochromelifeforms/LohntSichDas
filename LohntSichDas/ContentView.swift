@@ -27,7 +27,7 @@ struct ContentView: View {
     // Power (W) represented by the end of the grey arc: the active vehicle's
     // rated power delivered through the drivetrain.
     private var powerBandScale: Double {
-        max(locationManager.selectedVehicle.power * 1000 * drivetrainEfficiency, 1_000)
+        max(locationManager.selectedVehicle.power * 1000 * drivetrainEfficiency, 1)
     }
 
     private var useMiles: Bool { locationManager.useMiles }
