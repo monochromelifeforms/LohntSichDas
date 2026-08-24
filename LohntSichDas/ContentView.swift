@@ -6,7 +6,11 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var locationManager = LocationManager()
+    @State private var locationManager: LocationManager
+
+    init(locationManager: LocationManager = LocationManager()) {
+        self._locationManager = State(initialValue: locationManager)
+    }
     @State private var showSettings = false
     @State private var showHelp = false
     @State private var resetFlash = false
@@ -97,19 +101,24 @@ struct ContentView: View {
                 Text(speedUnit)
                     .font(.title)
                     .foregroundStyle(.secondary)
-                if locationManager.peakFilteredPower / drivetrainEfficiency >= 1000 {
-                    HStack(alignment: .firstTextBaseline, spacing: 3) {
-                        Text("max")
-                            .font(.system(size: 13, weight: .medium))
-                        Text("\(Int(locationManager.peakFilteredPower / drivetrainEfficiency / 1000))")
-                            .font(.system(size: 22, weight: .bold, design: .rounded))
-                            .monospacedDigit()
-                            .contentTransition(.numericText())
-                        Text("kW")
-                            .font(.system(size: 13, weight: .medium))
+                    .overlay(alignment: .trailing) {
+                        if locationManager.peakFilteredPower / drivetrainEfficiency >= 1000 {
+                            HStack(alignment: .top, spacing: 2) {
+                                Text("max")
+                                    .font(.system(size: 10, weight: .medium))
+                                Text("\(Int(locationManager.peakFilteredPower / drivetrainEfficiency / 1000))")
+                                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                                    .monospacedDigit()
+                                    .contentTransition(.numericText())
+                                Text("kW")
+                                    .font(.system(size: 10, weight: .medium))
+                                    .frame(maxHeight: .infinity, alignment: .bottom)
+                            }
+                            .foregroundStyle(.red)
+                            .fixedSize()
+                            .offset(x: 75, y: -10)
+                        }
                     }
-                    .foregroundStyle(.red)
-                }
                 Text("Referenz: \(Int(displayThreshold)) \(speedUnit)")
                     .font(.title2)
                     .foregroundStyle(.secondary)
@@ -466,6 +475,14 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
+}
+
+#Preview("With peak power") {
+    let lm = LocationManager()
+    lm.currentSpeed = 155
+    lm.instantaneousPower = 45_000
+    lm.peakFilteredPower = 58_000
+    return ContentView(locationManager: lm)
 }
 
 
