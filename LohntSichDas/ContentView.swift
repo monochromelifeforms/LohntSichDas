@@ -75,33 +75,6 @@ struct ContentView: View {
                 .padding(.leading, 24)
                 .padding(.top, 8)
                 Spacer()
-                // Only show the vehicle picker when there is more than one car.
-                if locationManager.vehicles.count > 1 {
-                    Menu {
-                        ForEach(locationManager.vehicles) { vehicle in
-                            Button {
-                                locationManager.selectedVehicleID = vehicle.id
-                            } label: {
-                                if vehicle.id == locationManager.selectedVehicleID {
-                                    Label(vehicle.displayName, systemImage: "checkmark")
-                                } else {
-                                    Text(vehicle.displayName)
-                                }
-                            }
-                        }
-                    } label: {
-                        HStack(spacing: 4) {
-                            Image(systemName: "car.fill")
-                            Text(locationManager.selectedVehicle.displayName)
-                                .lineLimit(1)
-                            Image(systemName: "chevron.down")
-                                .font(.caption2)
-                        }
-                        .font(.headline)
-                    }
-                    .padding(.top, 8)
-                    Spacer()
-                }
                 Button {
                     showSettings = true
                 } label: {
@@ -245,6 +218,34 @@ struct ContentView: View {
                         .rotationEffect(.degrees(peakFraction * 360))
                         .offset(y: -30)
                         .animation(.easeInOut(duration: 1.0), value: locationManager.peakFilteredPower)
+                }
+
+                // Vehicle picker inside the ring (only when more than one car)
+                if locationManager.vehicles.count > 1 {
+                    Menu {
+                        ForEach(locationManager.vehicles) { vehicle in
+                            Button {
+                                locationManager.selectedVehicleID = vehicle.id
+                            } label: {
+                                if vehicle.id == locationManager.selectedVehicleID {
+                                    Label(vehicle.displayName, systemImage: "checkmark")
+                                } else {
+                                    Text(vehicle.displayName)
+                                }
+                            }
+                        }
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "car.fill")
+                            Text(locationManager.selectedVehicle.displayName)
+                                .lineLimit(1)
+                            Image(systemName: "chevron.down")
+                                .font(.caption2)
+                        }
+                        .font(.headline)
+                    }
+                    .offset(y: -105)
+                    .offset(y: -30)
                 }
 
             }
