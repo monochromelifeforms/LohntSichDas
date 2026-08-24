@@ -124,6 +124,19 @@ struct ContentView: View {
                 Text(speedUnit)
                     .font(.title)
                     .foregroundStyle(.secondary)
+                if locationManager.peakFilteredPower / drivetrainEfficiency >= 1000 {
+                    HStack(alignment: .firstTextBaseline, spacing: 3) {
+                        Text("max")
+                            .font(.system(size: 13, weight: .medium))
+                        Text("\(Int(locationManager.peakFilteredPower / drivetrainEfficiency / 1000))")
+                            .font(.system(size: 22, weight: .bold, design: .rounded))
+                            .monospacedDigit()
+                            .contentTransition(.numericText())
+                        Text("kW")
+                            .font(.system(size: 13, weight: .medium))
+                    }
+                    .foregroundStyle(.red)
+                }
                 Text("Referenz: \(Int(displayThreshold)) \(speedUnit)")
                     .font(.title2)
                     .foregroundStyle(.secondary)
@@ -228,18 +241,17 @@ struct ContentView: View {
                     }
                 }
 
-                // Peak observed power (at the crank), shown below the labelled tick
+                // Peak power marker on the arc (red dot pushed ahead by the band)
                 let peakKW = locationManager.peakFilteredPower / drivetrainEfficiency / 1000
                 if peakKW >= 1 {
-                    let peakAngleDeg = Double(labeledKW) * 1000 / powerBandScale * maxBandDeg + 18
-                    let peakAngleRad = peakAngleDeg * .pi / 180
-                    Text("max \(Int(peakKW)) kW")
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundStyle(ringColor.opacity(0.5))
-                        .offset(
-                            x: labelR * sin(peakAngleRad),
-                            y: -30 - labelR * cos(peakAngleRad)
-                        )
+                    let peakFraction = min(locationManager.peakFilteredPower / powerBandScale, 1) * maxBandFraction
+                    Circle()
+                        .fill(.red)
+                        .frame(width: 8, height: 8)
+                        .offset(y: -148)
+                        .rotationEffect(.degrees(peakFraction * 360))
+                        .offset(y: -30)
+                        .animation(.easeInOut(duration: 1.0), value: locationManager.peakFilteredPower)
                 }
 
             }
