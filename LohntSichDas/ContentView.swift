@@ -216,19 +216,6 @@ struct ContentView: View {
                     }
                 }
 
-                // Peak power marker on the arc (red dot pushed ahead by the band)
-                let peakKW = locationManager.peakFilteredPower / drivetrainEfficiency / 1000
-                if peakKW >= 1 {
-                    let peakFraction = min(locationManager.peakFilteredPower / powerBandScale, 1) * maxBandFraction
-                    Circle()
-                        .fill(.red)
-                        .frame(width: 8, height: 8)
-                        .offset(y: -148)
-                        .rotationEffect(.degrees(peakFraction * 360))
-                        .offset(y: -30)
-                        .animation(.easeInOut(duration: 1.0), value: locationManager.peakFilteredPower)
-                }
-
                 // Vehicle picker inside the ring (only when more than one car)
                 if locationManager.vehicles.count > 1 {
                     Menu {
