@@ -116,7 +116,7 @@ struct ContentView: View {
                             }
                             .foregroundStyle(.red)
                             .fixedSize()
-                            .offset(x: 75, y: -10)
+                            .offset(x: 69, y: -20)
                         }
                     }
                 Text("Referenz: \(Int(displayThreshold)) \(speedUnit)")
