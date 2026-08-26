@@ -50,7 +50,7 @@ struct HelpView: View {
                     section(
                         icon: "timer",
                         title: "Fahrzeit",
-                        text: "Die Fahrzeit läuft, sobald du schneller als 10 km/h fährst. Sie stoppt automatisch, wenn du länger als eine Minute unter 6 km/h bleibst. Im Staumodus wird die Fahrzeit nie automatisch gestoppt."
+                        text: "Die Fahrzeit läuft, sobald du schneller als 10 km/h fährst. Sie stoppt automatisch, wenn du länger als zwei Minuten unter 6 km/h bleibst. Im Staumodus wird diese Zeit auf eine Stunde verlängert."
                     )
 
                     section(
@@ -68,7 +68,7 @@ struct HelpView: View {
                     section(
                         icon: "car.fill",
                         title: "Staumodus",
-                        text: "Aktiviere den Staumodus, wenn du im Stau stehst. Die Fahrzeit läuft dann weiter, auch wenn du lange stehst oder nur langsam fährst."
+                        text: "Aktiviere den Staumodus, wenn du im Stau stehst. Die automatische Stopp-Zeit wird dann von zwei Minuten auf eine Stunde verlängert."
                     )
 
                     section(

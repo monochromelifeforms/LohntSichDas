@@ -196,7 +196,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
 
     // MARK: - Transient runtime state (not persisted)
 
-    var trafficJamMode = false // when on, drive time never auto-stops
+    var trafficJamMode = false // when on, extends auto-stop timeout to 1 hour
     private(set) var isDriving = false
 
     // Physics constants
@@ -249,7 +249,8 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
     private let manager = CLLocationManager()
     private var lastTimestamp: Date?
     private var lastMovingTimestamp: Date? // last time speed was > 0
-    private let stopTimeout: TimeInterval = 60 // seconds at zero before stopping
+    private let stopTimeout: TimeInterval = 120 // seconds at low speed before stopping
+    private let trafficJamStopTimeout: TimeInterval = 3600 // 1 hour in Staumodus
 
     override init() {
         super.init()
@@ -302,8 +303,9 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
                     isDriving = true
                 }
                 lastMovingTimestamp = location.timestamp
-            } else if speedKMH < 6, isDriving, !trafficJamMode, let lastMoving = lastMovingTimestamp {
-                if location.timestamp.timeIntervalSince(lastMoving) >= stopTimeout {
+            } else if speedKMH < 6, isDriving, let lastMoving = lastMovingTimestamp {
+                let timeout = trafficJamMode ? trafficJamStopTimeout : stopTimeout
+                if location.timestamp.timeIntervalSince(lastMoving) >= timeout {
                     isDriving = false
                 }
             } else if speedKMH >= 6 {
