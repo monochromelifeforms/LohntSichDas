@@ -28,8 +28,13 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
     // tracking it. The default value lives inline in the getter — that is the
     // only place it needs to be defined.
 
+    /// Default reference speed in km/h: 130 for Germany, 100 elsewhere.
+    private static var defaultThresholdKMH: Double {
+        Locale.current.region?.identifier == "DE" ? 130.0 : 100.0
+    }
+
     var threshold: Double { // km/h (always stored in km/h)
-        get { access(keyPath: \.threshold); return UserDefaults.standard.object(forKey: "threshold") as? Double ?? 130.0 }
+        get { access(keyPath: \.threshold); return UserDefaults.standard.object(forKey: "threshold") as? Double ?? Self.defaultThresholdKMH }
         set { withMutation(keyPath: \.threshold) { UserDefaults.standard.set(newValue, forKey: "threshold") } }
     }
 
@@ -37,7 +42,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
         get { access(keyPath: \.useMiles); return UserDefaults.standard.object(forKey: "useMiles") as? Bool ?? false }
         set {
             withMutation(keyPath: \.useMiles) { UserDefaults.standard.set(newValue, forKey: "useMiles") }
-            threshold = newValue ? 96.5606 : 130.0 // reset reference to 60 mph or 130 km/h
+            threshold = newValue ? 80.4672 : Self.defaultThresholdKMH // 50 mph or 100/130 km/h
         }
     }
 
