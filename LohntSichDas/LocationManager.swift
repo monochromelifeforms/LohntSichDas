@@ -297,22 +297,19 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
             currentSpeed = speedKMH
             if !isDriving { instantaneousPower = 0 }
 
-            // Driving state machine: start when > 10 km/h, stop after timeout at low speed
+            // Driving state machine: start/reset when > 10 km/h, stop after timeout below 10 km/h
             if speedKMH > 10 {
                 if !isDriving {
                     isDriving = true
                 }
                 lastMovingTimestamp = location.timestamp
-            } else if speedKMH < 6, isDriving, let lastMoving = lastMovingTimestamp {
+            } else if isDriving, let lastMoving = lastMovingTimestamp {
                 let timeout = trafficJamMode ? trafficJamStopTimeout : stopTimeout
                 let idleTime = location.timestamp.timeIntervalSince(lastMoving)
                 if idleTime >= timeout {
                     travelTime = max(0, travelTime - idleTime)
                     isDriving = false
                 }
-            } else if speedKMH >= 6 {
-                // Between 6 and 8: not enough to start driving, but resets the stop timer
-                lastMovingTimestamp = location.timestamp
             }
 
             if let last = lastTimestamp {

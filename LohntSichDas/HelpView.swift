@@ -50,7 +50,7 @@ struct HelpView: View {
                     section(
                         icon: "timer",
                         title: "Fahrzeit",
-                        text: "Die Fahrzeit läuft, sobald du schneller als 10 km/h fährst. Sie stoppt automatisch, wenn du länger als zwei Minuten unter 6 km/h bleibst. Im Staumodus wird diese Zeit auf eine Stunde verlängert. Die Wartezeit bis zum automatischen Stopp wird von der Fahrzeit abgezogen."
+                        text: "Die Fahrzeit läuft, sobald du schneller als 10 km/h fährst. Sie stoppt automatisch, wenn du länger als zwei Minuten unter 10 km/h bleibst. Im Staumodus wird diese Zeit auf eine Stunde verlängert. Die Wartezeit bis zum automatischen Stopp wird von der Fahrzeit abgezogen."
                     )
 
                     section(
