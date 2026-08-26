@@ -117,6 +117,10 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
         get { selectedVehicle.regenEfficiency }
         set { updateSelectedVehicle { $0.regenEfficiency = newValue } }
     }
+    var measuredPeakPowerKW: Double {
+        get { selectedVehicle.measuredPeakPowerKW }
+        set { updateSelectedVehicle { $0.measuredPeakPowerKW = newValue } }
+    }
 
     /// Adds a new vehicle with default parameters and makes it active.
     func addVehicle() {
@@ -201,6 +205,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
 
     // Physics constants
     private let gravity: Double = 9.81 // m/s²
+    private let drivetrainEfficiency = 0.85
 
     /// Air density from the International Standard Atmosphere (ISA) model.
     /// Valid for the troposphere (altitude < 11 km).
@@ -219,7 +224,6 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
     var cumulativeActualWork: Double = 0
     var cumulativeBaselineWork: Double = 0
     var instantaneousPower: Double = 0 // Watts (W_engine / dt), Kalman-filtered
-    var peakFilteredPower: Double = 0  // highest positive filtered power observed (Watts)
     private var previousAltitude: Double?
     private var previousSpeedMS: Double? // for KE delta calculation
 
@@ -291,7 +295,6 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
         cumulativeActualWork = 0
         cumulativeBaselineWork = 0
         instantaneousPower = 0
-        peakFilteredPower = 0
         kalmanEstimate = 0
         kalmanErrorCovariance = 1000
         previousAltitude = nil
@@ -369,8 +372,11 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
                         // Total engine work for this step
                         let W_engine = deltaKE + W_drag + W_roll + W_gravity
                         instantaneousPower = kalmanFilter(W_engine / dt)
-                        if instantaneousPower > peakFilteredPower {
-                            peakFilteredPower = instantaneousPower
+
+                        // Track all-time peak on the active vehicle (engine kW)
+                        let engineKW = instantaneousPower / drivetrainEfficiency / 1000
+                        if engineKW > measuredPeakPowerKW {
+                            measuredPeakPowerKW = engineKW
                         }
 
                         // Accumulate actual engine work

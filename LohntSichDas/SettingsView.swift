@@ -76,7 +76,7 @@ struct SettingsView: View {
                         }
                         .tag(Self.addPageID)
                     }
-                    .frame(height: 390)
+                    .frame(height: 430)
                     .tabViewStyle(.page(indexDisplayMode: .always))
                     .indexViewStyle(.page(backgroundDisplayMode: .always))
                     .listRowInsets(EdgeInsets())
@@ -148,6 +148,12 @@ private struct VehicleEditor: View {
         )
     }
 
+    /// The measured peak power formatted in the currently selected unit.
+    private var measuredPeakInUnit: String {
+        let value = vehicle.measuredPeakPowerKW / powerUnit.kilowattsPerUnit
+        return value.systemFormatted(fractionDigits: 1)
+    }
+
     /// The power in the currently selected unit (storage is always kW).
     private var powerInUnit: Binding<Double> {
         Binding(
@@ -182,6 +188,33 @@ private struct VehicleEditor: View {
                 .pickerStyle(.menu)
                 .fixedSize()
             }
+            Divider()
+            HStack {
+                Text("Gemessen")
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(measuredPeakInUnit)
+                    .monospacedDigit()
+                    .foregroundStyle(.secondary)
+                Text(powerUnit.label)
+                    .foregroundStyle(.secondary)
+                if vehicle.measuredPeakPowerKW > 0 {
+                    Button {
+                        vehicle.power = vehicle.measuredPeakPowerKW
+                    } label: {
+                        Image(systemName: "arrow.up.to.line")
+                    }
+                    .buttonStyle(.borderless)
+                    Button {
+                        vehicle.measuredPeakPowerKW = 0
+                    } label: {
+                        Image(systemName: "trash")
+                    }
+                    .buttonStyle(.borderless)
+                    .foregroundStyle(.red)
+                }
+            }
+            .padding(.vertical, 10)
             Divider()
             numberRow(.mass, "Fahrzeugmasse", value: $vehicle.carMass, unit: "kg")
             Divider()

@@ -52,6 +52,7 @@ struct Vehicle: Identifiable, Codable, Hashable {
     var rollingResistanceCoeff: Double  // Cr
     var isElectric: Bool
     var regenEfficiency: Double         // fraction of braking energy recovered (EV only)
+    var measuredPeakPowerKW: Double     // highest measured engine power (kW), persistent
 
     init(
         id: UUID = UUID(),
@@ -63,7 +64,8 @@ struct Vehicle: Identifiable, Codable, Hashable {
         dragCoefficient: Double = 0.30,
         rollingResistanceCoeff: Double = 0.012,
         isElectric: Bool = false,
-        regenEfficiency: Double = 0.70
+        regenEfficiency: Double = 0.70,
+        measuredPeakPowerKW: Double = 0
     ) {
         self.id = id
         self.number = number
@@ -75,11 +77,13 @@ struct Vehicle: Identifiable, Codable, Hashable {
         self.rollingResistanceCoeff = rollingResistanceCoeff
         self.isElectric = isElectric
         self.regenEfficiency = regenEfficiency
+        self.measuredPeakPowerKW = measuredPeakPowerKW
     }
 
     private enum CodingKeys: String, CodingKey {
         case id, number, name, power, carMass, frontalArea
         case dragCoefficient, rollingResistanceCoeff, isElectric, regenEfficiency
+        case measuredPeakPowerKW
     }
 
     // Custom decoder so vehicles saved before `power` existed still load
@@ -96,6 +100,7 @@ struct Vehicle: Identifiable, Codable, Hashable {
         rollingResistanceCoeff = try c.decode(Double.self, forKey: .rollingResistanceCoeff)
         isElectric = try c.decode(Bool.self, forKey: .isElectric)
         regenEfficiency = try c.decode(Double.self, forKey: .regenEfficiency)
+        measuredPeakPowerKW = try c.decodeIfPresent(Double.self, forKey: .measuredPeakPowerKW) ?? 0
     }
 
     /// Name shown in the UI: the user's name, or "Auto #<number>" when unnamed.

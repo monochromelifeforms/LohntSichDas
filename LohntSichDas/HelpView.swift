@@ -32,7 +32,7 @@ struct HelpView: View {
                     section(
                         icon: "bolt.fill",
                         title: "Momentanleistung",
-                        text: "Der farbige Bogen innerhalb des Geschwindigkeitsrings zeigt die aktuelle Motorleistung an. Er ist auf das aktive Fahrzeug skaliert: Bei voller Leistung (Fahrzeugleistung × Antriebsstrang-Wirkungsgrad von 85\u{00A0}%) reicht der Bogen bis zum Ende des grauen Rings. Der rote Bogen (nach rechts) zeigt die tatsächlich geleistete Arbeit; grün (nach links) zeigt Bremsen. Bei Elektrofahrzeugen kennzeichnet helles Grün den per Rekuperation zurückgewonnenen Anteil. Die Markierungen passen sich automatisch an den Leistungsbereich des Fahrzeugs an. Die angezeigte Spitzenleistung (»max«) ist die höchste geschätzte Motorleistung (an der Kurbelwelle, also vor dem Antriebsstrang-Verlust) während der aktuellen Fahrt."
+                        text: "Der farbige Bogen innerhalb des Geschwindigkeitsrings zeigt die aktuelle Motorleistung an. Er ist auf das aktive Fahrzeug skaliert: Bei voller Leistung (Fahrzeugleistung × Antriebsstrang-Wirkungsgrad von 85\u{00A0}%) reicht der Bogen bis zum Ende des grauen Rings. Der rote Bogen (nach rechts) zeigt die tatsächlich geleistete Arbeit; grün (nach links) zeigt Bremsen. Bei Elektrofahrzeugen kennzeichnet helles Grün den per Rekuperation zurückgewonnenen Anteil. Die Markierungen passen sich automatisch an den Leistungsbereich des Fahrzeugs an. Die höchste gemessene Motorleistung wird pro Fahrzeug in den Einstellungen gespeichert und kann dort als Fahrzeugleistung übernommen oder zurückgesetzt werden."
                     )
 
                     section(

@@ -101,24 +101,6 @@ struct ContentView: View {
                 Text(speedUnit)
                     .font(.title)
                     .foregroundStyle(.secondary)
-                    .overlay(alignment: .trailing) {
-                        if locationManager.peakFilteredPower / drivetrainEfficiency >= 1000 {
-                            HStack(alignment: .top, spacing: 2) {
-                                Text("max")
-                                    .font(.system(size: 10, weight: .medium))
-                                Text("\(Int(locationManager.peakFilteredPower / drivetrainEfficiency / 1000))")
-                                    .font(.system(size: 22, weight: .bold, design: .rounded))
-                                    .monospacedDigit()
-                                    .contentTransition(.numericText())
-                                Text("kW")
-                                    .font(.system(size: 10, weight: .medium))
-                                    .frame(maxHeight: .infinity, alignment: .bottom)
-                            }
-                            .foregroundStyle(.red)
-                            .fixedSize()
-                            .offset(x: 69, y: -20)
-                        }
-                    }
                 Text("Referenz: \(Int(displayThreshold)) \(speedUnit)")
                     .font(.title2)
                     .foregroundStyle(.secondary)
@@ -471,7 +453,6 @@ struct ContentView: View {
     let lm = LocationManager()
     lm.currentSpeed = 155
     lm.instantaneousPower = 45_000
-    lm.peakFilteredPower = 58_000
     return ContentView(locationManager: lm)
 }
 
