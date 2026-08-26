@@ -309,10 +309,13 @@ struct ContentView: View {
         }
         .onAppear {
             locationManager.start()
-            UIApplication.shared.isIdleTimerDisabled = true
+            UIApplication.shared.isIdleTimerDisabled = locationManager.isDriving
         }
         .onDisappear {
             UIApplication.shared.isIdleTimerDisabled = false
+        }
+        .onChange(of: locationManager.isDriving) { _, driving in
+            UIApplication.shared.isIdleTimerDisabled = driving
         }
         .sheet(isPresented: $showSettings) {
             SettingsView(locationManager: locationManager)

@@ -50,7 +50,7 @@ struct HelpView: View {
                     section(
                         icon: "timer",
                         title: "Fahrzeit",
-                        text: "Die Fahrzeit läuft, sobald du schneller als 10 km/h fährst. Sie stoppt automatisch, wenn du länger als zwei Minuten unter 10 km/h bleibst. Im Staumodus wird diese Zeit auf eine Stunde verlängert. Die Wartezeit bis zum automatischen Stopp wird von der Fahrzeit abgezogen."
+                        text: "Die Fahrzeit läuft, sobald du schneller als 10 km/h fährst. Sie stoppt automatisch, wenn du länger als zwei Minuten unter 10 km/h bleibst. Im Staumodus wird diese Zeit auf eine Stunde verlängert. Die Wartezeit bis zum automatischen Stopp wird von der Fahrzeit abgezogen. Während der Fahrt bleibt der Bildschirm an; danach darf er sich wie gewohnt ausschalten."
                     )
 
                     section(
@@ -92,7 +92,7 @@ struct HelpView: View {
                     section(
                         icon: "location.fill",
                         title: "Hintergrund",
-                        text: "Die App läuft im Hintergrund weiter und erfasst auch dann Geschwindigkeit und gesparte Zeit, wenn du eine andere App nutzt."
+                        text: "Die App läuft im Hintergrund weiter und erfasst auch dann Geschwindigkeit und gesparte Zeit, wenn du eine andere App nutzt. Wenn du nicht fährst, reduziert die App automatisch die GPS-Genauigkeit und spart so Akku."
                     )
                 }
                 .padding(24)

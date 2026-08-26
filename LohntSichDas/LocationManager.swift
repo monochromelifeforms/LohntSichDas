@@ -256,10 +256,9 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
         super.init()
         bootstrapVehicles()
         manager.delegate = self
-        manager.desiredAccuracy = kCLLocationAccuracyBestForNavigation
         manager.allowsBackgroundLocationUpdates = true
-        manager.pausesLocationUpdatesAutomatically = false
         manager.activityType = .automotiveNavigation
+        applyLocationPowerMode(driving: false)
     }
 
     func start() {
@@ -267,11 +266,27 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
         manager.startUpdatingLocation()
     }
 
+    /// Adjusts location accuracy, distance filter, and auto-pause based on
+    /// whether we are actively driving. When not driving, reduced accuracy and
+    /// a distance filter save significant battery — especially in background.
+    private func applyLocationPowerMode(driving: Bool) {
+        if driving {
+            manager.desiredAccuracy = kCLLocationAccuracyBestForNavigation
+            manager.distanceFilter = kCLDistanceFilterNone
+            manager.pausesLocationUpdatesAutomatically = false
+        } else {
+            manager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+            manager.distanceFilter = 10
+            manager.pausesLocationUpdatesAutomatically = true
+        }
+    }
+
     func reset() {
         timeSaved = 0
         travelTime = 0
         totalDistance = 0
         isDriving = false
+        applyLocationPowerMode(driving: false)
         lastMovingTimestamp = nil
         cumulativeActualWork = 0
         cumulativeBaselineWork = 0
@@ -285,6 +300,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
 
     func stopDriving() {
         isDriving = false
+        applyLocationPowerMode(driving: false)
     }
 
     // MARK: - CLLocationManagerDelegate
@@ -301,6 +317,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
             if speedKMH > 10 {
                 if !isDriving {
                     isDriving = true
+                    applyLocationPowerMode(driving: true)
                 }
                 lastMovingTimestamp = location.timestamp
             } else if isDriving, let lastMoving = lastMovingTimestamp {
@@ -309,6 +326,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
                 if idleTime >= timeout {
                     travelTime = max(0, travelTime - idleTime)
                     isDriving = false
+                    applyLocationPowerMode(driving: false)
                 }
             }
 
@@ -398,5 +416,13 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
             }
             lastTimestamp = location.timestamp
         }
+    }
+
+    nonisolated func locationManagerDidPauseLocationUpdates(_ manager: CLLocationManager) {
+        // System paused updates because the device is stationary — saves power.
+    }
+
+    nonisolated func locationManagerDidResumeLocationUpdates(_ manager: CLLocationManager) {
+        // System detected movement and resumed updates automatically.
     }
 }
