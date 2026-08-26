@@ -46,6 +46,11 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
         }
     }
 
+    var showPowerBand: Bool {
+        get { access(keyPath: \.showPowerBand); return UserDefaults.standard.object(forKey: "showPowerBand") as? Bool ?? true }
+        set { withMutation(keyPath: \.showPowerBand) { UserDefaults.standard.set(newValue, forKey: "showPowerBand") } }
+    }
+
     /// Unit used to enter/display engine power. Global (vehicle power is stored in kW).
     var powerUnit: PowerUnit {
         get {

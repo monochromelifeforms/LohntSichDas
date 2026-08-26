@@ -63,6 +63,12 @@ struct SettingsView: View {
                 }
 
                 Section {
+                    Toggle("Leistungsanzeige", isOn: $locationManager.showPowerBand)
+                } footer: {
+                    Text("Zeigt den Leistungsbogen und die Skalenmarkierungen im Geschwindigkeitsring an.")
+                }
+
+                Section {
                     TabView(selection: $pageSelection) {
                         ForEach(locationManager.vehicles) { vehicle in
                             VehicleEditor(vehicle: binding(for: vehicle),
