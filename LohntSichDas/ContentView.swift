@@ -90,143 +90,7 @@ struct ContentView: View {
             }
             Spacer()
 
-            // Speed display
-            VStack(spacing: 4) {
-                Text("\(Int(displaySpeed))")
-                    .font(.system(size: 140, weight: .bold, design: .rounded))
-                    .monospacedDigit()
-                    .foregroundStyle(speedColor)
-                    .contentTransition(.numericText())
-                    .animation(.easeInOut(duration: 0.3), value: speedColor)
-                Text(speedUnit)
-                    .font(.title)
-                    .foregroundStyle(.secondary)
-                Text("Referenz: \(Int(displayThreshold)) \(speedUnit)")
-                    .font(.title2)
-                    .foregroundStyle(.secondary)
-            }
-            .overlay {
-                Circle()
-                    .trim(from: arcTrimStart, to: arcTrimEnd)
-                    .stroke(style: StrokeStyle(lineWidth: 4, lineCap: .round))
-                    .foregroundStyle(ringColor.opacity(0.4))
-                    .rotationEffect(.degrees(90))
-                    .frame(width: 320, height: 320)
-                    .offset(y: -30)
-
-                // Power band: extends right (positive/engine) or left (negative/braking).
-                // A full band (max power at the wheels) reaches the end of the grey arc.
-                let power = locationManager.instantaneousPower
-                let fraction = min(abs(power) / powerBandScale, 1) * maxBandFraction
-                let bandStyle = StrokeStyle(lineWidth: 16, lineCap: .round)
-
-                if power >= 0 {
-                    // Positive power: red band (engine working)
-                    Circle()
-                        .trim(from: bandTrimCenter, to: bandTrimCenter + fraction)
-                        .stroke(style: bandStyle)
-                        .foregroundStyle(.red)
-                        .rotationEffect(.degrees(90))
-                        .frame(width: 296, height: 296)
-                        .offset(y: -30)
-                        .animation(.easeInOut(duration: 1.0), value: power)
-                } else {
-                    // Negative power: dark green = energy lost to brakes,
-                    // bright green (closer to 12 o'clock) = energy recovered via regen.
-                    let regenFraction = locationManager.isElectric
-                        ? fraction * locationManager.regenEfficiency
-                        : 0
-
-                    // Dark green: full braking band
-                    Circle()
-                        .trim(from: bandTrimCenter - fraction, to: bandTrimCenter)
-                        .stroke(style: bandStyle)
-                        .foregroundStyle(Color.green.opacity(0.8))
-                        .rotationEffect(.degrees(90))
-                        .frame(width: 296, height: 296)
-                        .offset(y: -30)
-                        .animation(.easeInOut(duration: 1.0), value: power)
-
-                    // Bright green: recovered portion (closest to 12 o'clock)
-                    if regenFraction > 0 {
-                        Circle()
-                            .trim(from: bandTrimCenter - regenFraction, to: bandTrimCenter)
-                            .stroke(style: bandStyle)
-                            .foregroundStyle(.green)
-                            .rotationEffect(.degrees(90))
-                            .frame(width: 296, height: 296)
-                            .offset(y: -30)
-                            .animation(.easeInOut(duration: 1.0), value: power)
-                    }
-                }
-
-                // Adaptive scale ticks on both sides (engine = right, braking =
-                // left). PowerScale chooses a 1-2-5 "nice" interval so there are
-                // roughly 5–10 major ticks per side at any power range.
-                let scale = PowerScale(powerBandScale: powerBandScale, maxBandFraction: maxBandFraction)
-                let labelR: Double = 190
-
-                // Centre tick at 12 o'clock (0 kW boundary)
-                Rectangle()
-                    .fill(ringColor.opacity(0.6))
-                    .frame(width: 2, height: 18)
-                    .offset(y: -149)
-                    .offset(y: -30)
-
-                ForEach(scale.ticks) { tick in
-                    let tickH: Double = tick.isMajor ? 18 : 10
-                    let tickY = -(158 - tickH / 2)
-
-                    ForEach([tick.angleDegrees, -tick.angleDegrees], id: \.self) { angle in
-                        Rectangle()
-                            .fill(ringColor.opacity(0.6))
-                            .frame(width: 2, height: tickH)
-                            .offset(y: tickY)
-                            .rotationEffect(.degrees(angle))
-                            .offset(y: -30)
-                    }
-
-                    if tick.power == scale.labeledTickPower {
-                        let rad = tick.angleDegrees * .pi / 180
-                        Text(scale.labelText)
-                            .font(.system(size: 15, weight: .medium))
-                            .foregroundStyle(ringColor.opacity(0.6))
-                            .offset(
-                                x: labelR * sin(rad),
-                                y: -30 - labelR * cos(rad)
-                            )
-                    }
-                }
-
-                // Vehicle picker inside the ring (only when more than one car)
-                if locationManager.vehicles.count > 1 {
-                    Menu {
-                        ForEach(locationManager.vehicles) { vehicle in
-                            Button {
-                                locationManager.selectedVehicleID = vehicle.id
-                            } label: {
-                                if vehicle.id == locationManager.selectedVehicleID {
-                                    Label(vehicle.displayName, systemImage: "checkmark")
-                                } else {
-                                    Text(vehicle.displayName)
-                                }
-                            }
-                        }
-                    } label: {
-                        HStack(spacing: 4) {
-                            Image(systemName: "car.fill")
-                            Text(locationManager.selectedVehicle.displayName)
-                                .lineLimit(1)
-                            Image(systemName: "chevron.down")
-                                .font(.caption2)
-                        }
-                        .font(.headline)
-                    }
-                    .offset(y: -105)
-                    .offset(y: -30)
-                }
-
-            }
+            ringGroup
 
             Spacer().frame(maxHeight: 20)
 
@@ -308,6 +172,144 @@ struct ContentView: View {
     }
 
     // MARK: - Reusable groups (for future landscape layout)
+
+    private var ringGroup: some View {
+        VStack(spacing: 4) {
+            Text("\(Int(displaySpeed))")
+                .font(.system(size: 140, weight: .bold, design: .rounded))
+                .monospacedDigit()
+                .foregroundStyle(speedColor)
+                .contentTransition(.numericText())
+                .animation(.easeInOut(duration: 0.3), value: speedColor)
+            Text(speedUnit)
+                .font(.title)
+                .foregroundStyle(.secondary)
+            Text("Referenz: \(Int(displayThreshold)) \(speedUnit)")
+                .font(.title2)
+                .foregroundStyle(.secondary)
+        }
+        .overlay {
+            Circle()
+                .trim(from: arcTrimStart, to: arcTrimEnd)
+                .stroke(style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                .foregroundStyle(ringColor.opacity(0.4))
+                .rotationEffect(.degrees(90))
+                .frame(width: 320, height: 320)
+                .offset(y: -30)
+
+            // Power band: extends right (positive/engine) or left (negative/braking).
+            // A full band (max power at the wheels) reaches the end of the grey arc.
+            let power = locationManager.instantaneousPower
+            let fraction = min(abs(power) / powerBandScale, 1) * maxBandFraction
+            let bandStyle = StrokeStyle(lineWidth: 16, lineCap: .round)
+
+            if power >= 0 {
+                // Positive power: red band (engine working)
+                Circle()
+                    .trim(from: bandTrimCenter, to: bandTrimCenter + fraction)
+                    .stroke(style: bandStyle)
+                    .foregroundStyle(.red)
+                    .rotationEffect(.degrees(90))
+                    .frame(width: 296, height: 296)
+                    .offset(y: -30)
+                    .animation(.easeInOut(duration: 1.0), value: power)
+            } else {
+                // Negative power: dark green = energy lost to brakes,
+                // bright green (closer to 12 o'clock) = energy recovered via regen.
+                let regenFraction = locationManager.isElectric
+                    ? fraction * locationManager.regenEfficiency
+                    : 0
+
+                // Dark green: full braking band
+                Circle()
+                    .trim(from: bandTrimCenter - fraction, to: bandTrimCenter)
+                    .stroke(style: bandStyle)
+                    .foregroundStyle(Color.green.opacity(0.8))
+                    .rotationEffect(.degrees(90))
+                    .frame(width: 296, height: 296)
+                    .offset(y: -30)
+                    .animation(.easeInOut(duration: 1.0), value: power)
+
+                // Bright green: recovered portion (closest to 12 o'clock)
+                if regenFraction > 0 {
+                    Circle()
+                        .trim(from: bandTrimCenter - regenFraction, to: bandTrimCenter)
+                        .stroke(style: bandStyle)
+                        .foregroundStyle(.green)
+                        .rotationEffect(.degrees(90))
+                        .frame(width: 296, height: 296)
+                        .offset(y: -30)
+                        .animation(.easeInOut(duration: 1.0), value: power)
+                }
+            }
+
+            // Adaptive scale ticks on both sides (engine = right, braking =
+            // left). PowerScale chooses a 1-2-5 "nice" interval so there are
+            // roughly 5–10 major ticks per side at any power range.
+            let scale = PowerScale(powerBandScale: powerBandScale, maxBandFraction: maxBandFraction)
+            let labelR: Double = 190
+
+            // Centre tick at 12 o'clock (0 kW boundary)
+            Rectangle()
+                .fill(ringColor.opacity(0.6))
+                .frame(width: 2, height: 18)
+                .offset(y: -149)
+                .offset(y: -30)
+
+            ForEach(scale.ticks) { tick in
+                let tickH: Double = tick.isMajor ? 18 : 10
+                let tickY = -(158 - tickH / 2)
+
+                ForEach([tick.angleDegrees, -tick.angleDegrees], id: \.self) { angle in
+                    Rectangle()
+                        .fill(ringColor.opacity(0.6))
+                        .frame(width: 2, height: tickH)
+                        .offset(y: tickY)
+                        .rotationEffect(.degrees(angle))
+                        .offset(y: -30)
+                }
+
+                if tick.power == scale.labeledTickPower {
+                    let rad = tick.angleDegrees * .pi / 180
+                    Text(scale.labelText)
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundStyle(ringColor.opacity(0.6))
+                        .offset(
+                            x: labelR * sin(rad),
+                            y: -30 - labelR * cos(rad)
+                        )
+                }
+            }
+
+            // Vehicle picker inside the ring (only when more than one car)
+            if locationManager.vehicles.count > 1 {
+                Menu {
+                    ForEach(locationManager.vehicles) { vehicle in
+                        Button {
+                            locationManager.selectedVehicleID = vehicle.id
+                        } label: {
+                            if vehicle.id == locationManager.selectedVehicleID {
+                                Label(vehicle.displayName, systemImage: "checkmark")
+                            } else {
+                                Text(vehicle.displayName)
+                            }
+                        }
+                    }
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "car.fill")
+                        Text(locationManager.selectedVehicle.displayName)
+                            .lineLimit(1)
+                        Image(systemName: "chevron.down")
+                            .font(.caption2)
+                    }
+                    .font(.headline)
+                }
+                .offset(y: -105)
+                .offset(y: -30)
+            }
+        }
+    }
 
     private var timeSavedGroup: some View {
         VStack(spacing: 2) {
