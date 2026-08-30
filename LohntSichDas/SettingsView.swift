@@ -16,21 +16,23 @@ struct SettingsView: View {
     /// Sentinel tag for the trailing "add a vehicle" page.
     private static let addPageID = UUID()
 
+    private let kmPerMile = 1.60934
+
     init(locationManager: LocationManager) {
         _locationManager = Bindable(locationManager)
         _pageSelection = State(initialValue: locationManager.selectedVehicleID)
     }
 
     private var displayThreshold: Double {
-        locationManager.useMiles ? locationManager.threshold / 1.60934 : locationManager.threshold
+        locationManager.useMiles ? locationManager.threshold / kmPerMile : locationManager.threshold
     }
 
     private var sliderRange: ClosedRange<Double> {
-        locationManager.useMiles ? 48.2802...193.121 : 50...200 // 30-120 mph or 50-200 km/h
+        locationManager.useMiles ? (30 * kmPerMile)...(120 * kmPerMile) : 50...200
     }
 
     private var sliderStep: Double {
-        locationManager.useMiles ? 1.60934 : 5 // 1 mph steps or 5 km/h steps
+        locationManager.useMiles ? kmPerMile : 5 // 1 mph steps or 5 km/h steps
     }
 
     private var speedUnit: String {

@@ -25,6 +25,8 @@ struct ContentView: View {
     private let bandTrimCenter = 0.5
     private var maxBandFraction: Double { arcTrimEnd - bandTrimCenter }
 
+    private let kmPerMile = 1.60934
+
     // Drivetrain efficiency mapping the engine's rated power to power at the wheels.
     private let drivetrainEfficiency = 0.85
 
@@ -37,17 +39,14 @@ struct ContentView: View {
     private var useMiles: Bool { locationManager.useMiles }
     private var speedUnit: String { useMiles ? "mph" : "km/h" }
 
-    private var displaySpeed: Double {
-        useMiles ? locationManager.currentSpeed / 1.60934 : locationManager.currentSpeed
+    /// Converts a speed from internal km/h to the user's display unit.
+    private func displayValue(_ kmh: Double) -> Double {
+        useMiles ? kmh / kmPerMile : kmh
     }
 
-    private var displayThreshold: Double {
-        useMiles ? locationManager.threshold / 1.60934 : locationManager.threshold
-    }
-
-    private var displayAverageSpeed: Double {
-        useMiles ? locationManager.averageSpeed / 1.60934 : locationManager.averageSpeed
-    }
+    private var displaySpeed: Double { displayValue(locationManager.currentSpeed) }
+    private var displayThreshold: Double { displayValue(locationManager.threshold) }
+    private var displayAverageSpeed: Double { displayValue(locationManager.averageSpeed) }
 
     private var speedColor: Color {
         if locationManager.currentSpeed > locationManager.threshold {
@@ -254,8 +253,7 @@ struct ContentView: View {
                 Rectangle()
                     .fill(ringColor.opacity(0.6))
                     .frame(width: 2, height: 18)
-                    .offset(y: -149)
-                    .offset(y: -30)
+                    .offset(y: -179)
 
                 ForEach(scale.ticks) { tick in
                     let tickH: Double = tick.isMajor ? 18 : 10
@@ -307,8 +305,7 @@ struct ContentView: View {
                     }
                     .font(.headline)
                 }
-                .offset(y: -105)
-                .offset(y: -30)
+                .offset(y: -135)
             }
         }
     }
@@ -419,7 +416,7 @@ struct ContentView: View {
     private var formattedDistance: String {
         let km = locationManager.totalDistance / 1000
         if useMiles {
-            let miles = km / 1.60934
+            let miles = km / kmPerMile
             return "\(miles.systemFormatted(fractionDigits: miles >= 100 ? 0 : 1)) mi"
         }
         return "\(km.systemFormatted(fractionDigits: km >= 100 ? 0 : 1)) km"
@@ -453,15 +450,12 @@ struct ContentView: View {
     ContentView()
 }
 
-#Preview("With peak power") {
+#Preview("Driving") {
     let lm = LocationManager()
     lm.currentSpeed = 155
     lm.instantaneousPower = 45_000
     return ContentView(locationManager: lm)
 }
-
-
-
 
 
 

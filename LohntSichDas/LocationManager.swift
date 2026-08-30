@@ -238,10 +238,11 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
     private var previousSpeedMS: Double? // for KE delta calculation
 
     // Kalman filter state for instantaneous power
+    private let initialKalmanCovariance: Double = 1000
     private var kalmanEstimate: Double = 0
-    private var kalmanErrorCovariance: Double = 1000 // start with high uncertainty
-    private let kalmanProcessNoise: Double = 5000 // how much we expect power to change between samples
-    private let kalmanMeasurementNoise: Double = 20000 // how noisy raw readings are
+    private var kalmanErrorCovariance: Double = 1000
+    private let kalmanProcessNoise: Double = 5000
+    private let kalmanMeasurementNoise: Double = 20000
 
     private func kalmanFilter(_ measurement: Double) -> Double {
         // Predict (estimate stays the same, uncertainty grows)
@@ -253,6 +254,16 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
         kalmanErrorCovariance = (1 - kalmanGain) * predictedCovariance
 
         return kalmanEstimate
+    }
+
+    /// Adds engine work to an accumulator: positive work is added directly;
+    /// negative work (braking) is partially recovered on EVs via regen.
+    private func accumulateWork(_ work: Double, into accumulator: inout Double) {
+        if work > 0 {
+            accumulator += work
+        } else if isElectric {
+            accumulator += work * regenEfficiency
+        }
     }
 
     var extraWorkPercentage: Double {
@@ -306,7 +317,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
         cumulativeBaselineWork = 0
         instantaneousPower = 0
         kalmanEstimate = 0
-        kalmanErrorCovariance = 1000
+        kalmanErrorCovariance = initialKalmanCovariance
         previousAltitude = nil
         previousSpeedMS = nil
     }
@@ -390,13 +401,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
                         }
 
                         // Accumulate actual engine work
-                        if W_engine > 0 {
-                            cumulativeActualWork += W_engine
-                        } else if isElectric {
-                            // Regenerative braking recovers energy
-                            cumulativeActualWork += W_engine * regenEfficiency
-                        }
-                        // ICE with W_engine <= 0: coasting/braking, no fuel consumed
+                        accumulateWork(W_engine, into: &cumulativeActualWork)
 
                         // Baseline: what the engine would do at threshold speed
                         if speedMS > thresholdMS {
@@ -404,18 +409,10 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
                             let W_drag_ref = 0.5 * rho * dragCoefficient * frontalArea * pow(thresholdMS, 2) * dx
                             let W_engine_ref = W_drag_ref + W_roll + W_gravity
 
-                            if W_engine_ref > 0 {
-                                cumulativeBaselineWork += W_engine_ref
-                            } else if isElectric {
-                                cumulativeBaselineWork += W_engine_ref * regenEfficiency
-                            }
+                            accumulateWork(W_engine_ref, into: &cumulativeBaselineWork)
                         } else {
                             // Below threshold: baseline = actual
-                            if W_engine > 0 {
-                                cumulativeBaselineWork += W_engine
-                            } else if isElectric {
-                                cumulativeBaselineWork += W_engine * regenEfficiency
-                            }
+                            accumulateWork(W_engine, into: &cumulativeBaselineWork)
                         }
 
                         previousSpeedMS = speedMS
@@ -432,13 +429,5 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
             }
             lastTimestamp = location.timestamp
         }
-    }
-
-    nonisolated func locationManagerDidPauseLocationUpdates(_ manager: CLLocationManager) {
-        // System paused updates because the device is stationary — saves power.
-    }
-
-    nonisolated func locationManagerDidResumeLocationUpdates(_ manager: CLLocationManager) {
-        // System detected movement and resumed updates automatically.
     }
 }
