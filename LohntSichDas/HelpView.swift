@@ -13,10 +13,10 @@ struct HelpView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     VStack(spacing: 4) {
-                        Text("Lohnt sich das?")
+                        Text(L("helpTitle"))
                             .font(.largeTitle.bold())
-                        Text("–oder–")
-                        Text("Hab' ich wirklich so viel Zeit gespart?")
+                        Text(L("helpSubtitleOr"))
+                        Text(L("helpSubtitleFull"))
                             .font(.title2)
                     }
                     .frame(maxWidth: .infinity)
@@ -25,83 +25,83 @@ struct HelpView: View {
 
                     section(
                         icon: "speedometer",
-                        title: "Geschwindigkeit",
-                        text: "Die App zeigt deine aktuelle Geschwindigkeit per GPS an – wahlweise in km/h oder mph."
+                        title: L("helpSpeed"),
+                        text: L("helpSpeedText")
                     )
 
                     section(
                         icon: "bolt.fill",
-                        title: "Momentanleistung",
-                        text: "Der farbige Bogen innerhalb des Geschwindigkeitsrings zeigt die aktuelle Motorleistung an. Er ist auf das aktive Fahrzeug skaliert: Bei voller Leistung (Fahrzeugleistung × Antriebsstrang-Wirkungsgrad von 85\u{00A0}%) reicht der Bogen bis zum Ende des grauen Rings. Der rote Bogen (nach rechts) zeigt die tatsächlich geleistete Arbeit; grün (nach links) zeigt Bremsen. Bei Elektrofahrzeugen kennzeichnet helles Grün den per Rekuperation zurückgewonnenen Anteil. Die Markierungen passen sich automatisch an den Leistungsbereich des Fahrzeugs an. Die höchste gemessene Motorleistung wird pro Fahrzeug in den Einstellungen gespeichert und kann dort als Fahrzeugleistung übernommen oder zurückgesetzt werden."
+                        title: L("helpPower"),
+                        text: L("helpPowerText")
                     )
 
                     section(
                         icon: "clock.arrow.circlepath",
-                        title: "Gesparte Zeit",
-                        text: "Immer wenn du schneller als die eingestellte Referenzgeschwindigkeit fährst, berechnet die App, wie viel Zeit du im Vergleich zur Referenzgeschwindigkeit sparst. Zeit unterhalb der Referenz wird nicht abgezogen."
+                        title: L("helpTimeSaved"),
+                        text: L("helpTimeSavedText")
                     )
 
                     section(
                         icon: "fuelpump",
-                        title: "Mehrverbrauch",
-                        text: "Schätzt grob, wie viel mehr Kraftstoff bzw. Energie du durch das Überschreiten der Referenzgeschwindigkeit verbrauchst. Die Berechnung berücksichtigt Luftwiderstand, Rollwiderstand, Höhenunterschiede und Beschleunigung. Da reale Faktoren wie Gangwahl, Windverhältnisse, Motoreffizienz und Reifendruck nicht erfasst werden, dient der Wert nur als Anhaltspunkt. Die Parameter des aktiven Fahrzeugs (Masse, Stirnfläche, Cw-Wert usw.) können in den Einstellungen angepasst werden."
+                        title: L("helpExtraConsumption"),
+                        text: L("helpExtraConsumptionText")
                     )
 
                     section(
                         icon: "timer",
-                        title: "Fahrzeit",
-                        text: "Die Fahrzeit läuft, sobald du schneller als 10 km/h fährst. Sie stoppt automatisch, wenn du länger als zwei Minuten unter 10 km/h bleibst. Im Staumodus wird diese Zeit auf eine Stunde verlängert. Die Wartezeit bis zum automatischen Stopp wird von der Fahrzeit abgezogen. Während der Fahrt bleibt der Bildschirm an; danach darf er sich wie gewohnt ausschalten."
+                        title: L("helpTravelTime"),
+                        text: L("helpTravelTimeText")
                     )
 
                     section(
                         icon: "road.lanes",
-                        title: "Strecke",
-                        text: "Zeigt die gesamte gefahrene Strecke seit dem letzten Reset an – in Kilometern oder Meilen, je nach Einstellung."
+                        title: L("helpDistance"),
+                        text: L("helpDistanceText")
                     )
 
                     section(
                         icon: "gauge.with.dots.needle.50percent",
-                        title: "Durchschnittsgeschwindigkeit",
-                        text: "Die Durchschnittsgeschwindigkeit wird aus der gefahrenen Strecke und der Fahrzeit berechnet."
+                        title: L("helpAverageSpeed"),
+                        text: L("helpAverageSpeedText")
                     )
 
                     section(
                         icon: "car.fill",
-                        title: "Staumodus",
-                        text: "Aktiviere den Staumodus, wenn du im Stau stehst. Die automatische Stopp-Zeit wird dann von zwei Minuten auf eine Stunde verlängert."
+                        title: L("helpTrafficJam"),
+                        text: L("helpTrafficJamText")
                     )
 
                     section(
                         icon: "stop.fill",
-                        title: "Stop",
-                        text: "Stoppt die Fahrzeit sofort manuell, z.\u{00A0}B. wenn du an deinem Ziel angekommen bist."
+                        title: L("helpStop"),
+                        text: L("helpStopText")
                     )
 
                     section(
                         icon: "car.2.fill",
-                        title: "Fahrzeuge",
-                        text: "Du kannst mehrere Fahrzeuge anlegen. In den Einstellungen wischst du seitwärts zwischen den Fahrzeugen und legst über „Fahrzeug hinzufügen“ ein weiteres an. Jedes Fahrzeug hat einen Namen (ohne Eingabe „Auto #x“) sowie eigene Parameter wie Leistung, Masse, Stirnfläche und Antriebsart. Die Leistung kann in kW, PS oder HP eingegeben werden. Sind mehrere Fahrzeuge vorhanden, wählst du das aktive Fahrzeug oben in der Mitte über den Fahrzeugnamen aus."
+                        title: L("helpVehicles"),
+                        text: L("helpVehiclesText")
                     )
 
                     section(
                         icon: "gearshape",
-                        title: "Einstellungen",
-                        text: "Über das Zahnrad oben rechts kannst du die Referenzgeschwindigkeit anpassen (Standard: 130 km/h bzw. 60 mph), zwischen km/h und mph umschalten und deine Fahrzeuge verwalten."
+                        title: L("helpSettings"),
+                        text: L("helpSettingsText")
                     )
 
                     section(
                         icon: "location.fill",
-                        title: "Hintergrund",
-                        text: "Die App läuft im Hintergrund weiter und erfasst auch dann Geschwindigkeit und gesparte Zeit, wenn du eine andere App nutzt. Wenn du nicht fährst, reduziert die App automatisch die GPS-Genauigkeit und spart so Akku."
+                        title: L("helpBackground"),
+                        text: L("helpBackgroundText")
                     )
                 }
                 .padding(24)
             }
-            .navigationTitle("Hilfe")
+            .navigationTitle(L("help"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Fertig") {
+                    Button(L("done")) {
                         dismiss()
                     }
                 }

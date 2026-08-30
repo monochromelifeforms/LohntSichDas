@@ -51,6 +51,17 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
         set { withMutation(keyPath: \.showPowerBand) { UserDefaults.standard.set(newValue, forKey: "showPowerBand") } }
     }
 
+    var appLanguage: AppLanguage {
+        get {
+            access(keyPath: \.appLanguage)
+            return UserDefaults.standard.string(forKey: "appLanguage").flatMap(AppLanguage.init(rawValue:)) ?? .system
+        }
+        set {
+            withMutation(keyPath: \.appLanguage) { UserDefaults.standard.set(newValue.rawValue, forKey: "appLanguage") }
+            currentAppLanguage = newValue
+        }
+    }
+
     /// Unit used to enter/display engine power. Global (vehicle power is stored in kW).
     var powerUnit: PowerUnit {
         get {
@@ -280,6 +291,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
     override init() {
         super.init()
         bootstrapVehicles()
+        currentAppLanguage = appLanguage
         manager.delegate = self
         manager.allowsBackgroundLocationUpdates = true
         manager.activityType = .automotiveNavigation

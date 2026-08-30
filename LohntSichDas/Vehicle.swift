@@ -103,9 +103,9 @@ struct Vehicle: Identifiable, Codable, Hashable {
         measuredPeakPowerKW = try c.decodeIfPresent(Double.self, forKey: .measuredPeakPowerKW) ?? 0
     }
 
-    /// Name shown in the UI: the user's name, or "Auto #<number>" when unnamed.
+    /// Name shown in the UI: the user's name, or a localized default when unnamed.
     var displayName: String {
         let trimmed = name.trimmingCharacters(in: .whitespaces)
-        return trimmed.isEmpty ? "Auto #\(number)" : trimmed
+        return trimmed.isEmpty ? L("vehicleDefaultName", number) : trimmed
     }
 }

@@ -43,8 +43,16 @@ struct SettingsView: View {
         NavigationStack {
             Form {
                 Section {
+                    Picker(L("language"), selection: $locationManager.appLanguage) {
+                        ForEach(AppLanguage.allCases) { lang in
+                            Text(lang.displayName).tag(lang)
+                        }
+                    }
+                }
+
+                Section {
                     HStack {
-                        Text("Referenzgeschwindigkeit")
+                        Text(L("referenceSpeed"))
                         Spacer()
                         Text("\(Int(displayThreshold)) \(speedUnit)")
                             .monospacedDigit()
@@ -52,11 +60,11 @@ struct SettingsView: View {
                     }
                     Slider(value: $locationManager.threshold, in: sliderRange, step: sliderStep)
                 } footer: {
-                    Text("Zeitersparnis wird berechnet, wenn du schneller als \(Int(displayThreshold)) \(speedUnit) fährst.")
+                    Text(L("referenceFooterFormat", Int(displayThreshold), speedUnit))
                 }
 
                 Section {
-                    Picker("Einheit", selection: $locationManager.useMiles) {
+                    Picker(L("unit"), selection: $locationManager.useMiles) {
                         Text("mph").tag(true)
                         Text("km/h").tag(false)
                     }
@@ -65,9 +73,9 @@ struct SettingsView: View {
                 }
 
                 Section {
-                    Toggle("Leistungsanzeige", isOn: $locationManager.showPowerBand)
+                    Toggle(L("powerDisplay"), isOn: $locationManager.showPowerBand)
                 } footer: {
-                    Text("Zeigt den Leistungsbogen und die Skalenmarkierungen im Geschwindigkeitsring an.")
+                    Text(L("powerDisplayFooter"))
                 }
 
                 Section {
@@ -89,9 +97,9 @@ struct SettingsView: View {
                     .indexViewStyle(.page(backgroundDisplayMode: .always))
                     .listRowInsets(EdgeInsets())
                 } header: {
-                    Text("Fahrzeug")
+                    Text(L("vehicle"))
                 } footer: {
-                    Text("Wische seitwärts, um zwischen Fahrzeugen zu wechseln oder ein neues hinzuzufügen.")
+                    Text(L("vehicleSwipeHint"))
                 }
 
                 if locationManager.vehicles.count > 1 {
@@ -100,17 +108,17 @@ struct SettingsView: View {
                             locationManager.deleteSelectedVehicle()
                             pageSelection = locationManager.selectedVehicleID
                         } label: {
-                            Text("Dieses Fahrzeug löschen")
+                            Text(L("deleteVehicle"))
                                 .frame(maxWidth: .infinity)
                         }
                     }
                 }
             }
-            .navigationTitle("Einstellungen")
+            .navigationTitle(L("settings"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Fertig") {
+                    Button(L("done")) {
                         dismiss()
                     }
                 }
@@ -172,14 +180,14 @@ private struct VehicleEditor: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            row(.name, "Name") {
-                TextField("Auto #\(vehicle.number)", text: $vehicle.name)
+            row(.name, L("name")) {
+                TextField(L("vehicleDefaultName", vehicle.number), text: $vehicle.name)
                     .multilineTextAlignment(.trailing)
                     .foregroundStyle(.secondary)
                     .focused($focused, equals: .name)
             }
             Divider()
-            row(.power, "Leistung") {
+            row(.power, L("power")) {
                 // Power is rounded to 2 decimals (enough for kW/HP/PS, incl. when
                 // converting between units); other fields allow arbitrary decimals.
                 DecimalField(value: powerInUnit, maxFractionDigits: 2,
@@ -187,7 +195,7 @@ private struct VehicleEditor: View {
                     .multilineTextAlignment(.trailing)
                     .monospacedDigit()
                     .frame(width: 70)
-                Picker("Einheit", selection: $powerUnit) {
+                Picker(L("unit"), selection: $powerUnit) {
                     ForEach(PowerUnit.allCases) { unit in
                         Text(unit.label).tag(unit)
                     }
@@ -198,7 +206,7 @@ private struct VehicleEditor: View {
             }
             Divider()
             HStack {
-                Text("Gemessen")
+                Text(L("measured"))
                     .foregroundStyle(.secondary)
                 Spacer()
                 Text(measuredPeakInUnit)
@@ -224,19 +232,19 @@ private struct VehicleEditor: View {
             }
             .padding(.vertical, 10)
             Divider()
-            numberRow(.mass, "Fahrzeugmasse", value: $vehicle.carMass, unit: "kg")
+            numberRow(.mass, L("vehicleMass"), value: $vehicle.carMass, unit: "kg")
             Divider()
-            numberRow(.frontalArea, "Stirnfläche", value: $vehicle.frontalArea, unit: "m²")
+            numberRow(.frontalArea, L("frontalArea"), value: $vehicle.frontalArea, unit: "m²")
             Divider()
-            numberRow(.drag, "Cw-Wert", value: $vehicle.dragCoefficient, unit: nil)
+            numberRow(.drag, L("dragCoefficient"), value: $vehicle.dragCoefficient, unit: nil)
             Divider()
-            numberRow(.rolling, "Rollwiderstand", value: $vehicle.rollingResistanceCoeff, unit: nil)
+            numberRow(.rolling, L("rollingResistance"), value: $vehicle.rollingResistanceCoeff, unit: nil)
             Divider()
-            Toggle("Elektrofahrzeug", isOn: $vehicle.isElectric)
+            Toggle(L("electricVehicle"), isOn: $vehicle.isElectric)
                 .padding(.vertical, 10)
             if vehicle.isElectric {
                 Divider()
-                numberRow(.regen, "Rekuperationseffizienz", value: regenPercent, unit: "%")
+                numberRow(.regen, L("regenEfficiency"), value: regenPercent, unit: "%")
             }
             Spacer(minLength: 0)
         }
@@ -327,7 +335,7 @@ private struct AddVehiclePage: View {
         VStack {
             Spacer()
             Button(action: action) {
-                Label("Fahrzeug hinzufügen", systemImage: "plus.circle.fill")
+                Label(L("addVehicle"), systemImage: "plus.circle.fill")
                     .font(.title3.weight(.medium))
             }
             Spacer()

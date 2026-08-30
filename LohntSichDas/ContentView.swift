@@ -106,7 +106,7 @@ struct ContentView: View {
                 Button {
                     locationManager.trafficJamMode.toggle()
                 } label: {
-                    Label("Staumodus", systemImage: locationManager.trafficJamMode ? "car.fill" : "car")
+                    Label(L("trafficJamMode"), systemImage: locationManager.trafficJamMode ? "car.fill" : "car")
                         .font(.headline)
                         .frame(maxWidth: .infinity)
                         .padding()
@@ -118,7 +118,7 @@ struct ContentView: View {
                 Button {
                     locationManager.stopDriving()
                 } label: {
-                    Label("Stop", systemImage: "stop.fill")
+                    Label(L("stop"), systemImage: "stop.fill")
                         .font(.headline)
                         .frame(maxWidth: .infinity)
                         .padding()
@@ -132,7 +132,7 @@ struct ContentView: View {
             .padding(.bottom, 12)
 
             // Reset button — requires a long press to avoid accidental activation
-            Text("Reset (gedrückt halten)")
+            Text(L("resetHoldToConfirm"))
                 .font(.title2.weight(.semibold))
                 .frame(maxWidth: .infinity)
                 .padding()
@@ -183,7 +183,7 @@ struct ContentView: View {
             Text(speedUnit)
                 .font(.title)
                 .foregroundStyle(.secondary)
-            Text("Referenz: \(Int(displayThreshold)) \(speedUnit)")
+            Text(L("referenceFormat", Int(displayThreshold), speedUnit))
                 .font(.title2)
                 .foregroundStyle(.secondary)
         }
@@ -312,7 +312,7 @@ struct ContentView: View {
 
     private var timeSavedGroup: some View {
         VStack(spacing: 2) {
-            Text("Gesparte Zeit")
+            Text(L("timeSaved"))
                 .font(.headline)
                 .foregroundStyle(.secondary)
             Text(formattedTimeSaved)
@@ -335,7 +335,7 @@ struct ContentView: View {
                         .foregroundStyle(.orange.opacity(0.6))
                 }
                 .popover(isPresented: $showMehrverbrauchHelp) {
-                    Text("Schätzt grob, wie viel mehr Kraftstoff bzw. Energie du durch das Überschreiten der Referenzgeschwindigkeit verbrauchst. Die Berechnung berücksichtigt Luftwiderstand, Rollwiderstand, Höhenunterschiede und Beschleunigung. Da reale Faktoren wie Gangwahl, Windverhältnisse, Motoreffizienz und Reifendruck nicht erfasst werden, dient der Wert nur als Anhaltspunkt.")
+                    Text(L("mehrverbrauchHelp"))
                         .font(.callout)
                         .padding()
                         .frame(width: 300)
@@ -354,14 +354,14 @@ struct ContentView: View {
                 }
                 .tint(.secondary)
                 .popover(isPresented: $showArbeitHelp) {
-                    Text("Mechanische Arbeit in kWh: tatsächlich geleistete Arbeit / Arbeit bei konstanter Referenzgeschwindigkeit. Der Quotient ergibt den Mehrverbrauch.")
+                    Text(L("arbeitHelp"))
                         .font(.callout)
                         .padding()
                         .frame(width: 300)
                         .fixedSize(horizontal: false, vertical: true)
                         .presentationCompactAdaptation(.popover)
                 }
-                Text("Arbeit: \((locationManager.cumulativeActualWork / 3_600_000).systemFormatted(fractionDigits: 2)) / \((locationManager.cumulativeBaselineWork / 3_600_000).systemFormatted(fractionDigits: 2)) kWh")
+                Text(L("workFormat", (locationManager.cumulativeActualWork / 3_600_000).systemFormatted(fractionDigits: 2), (locationManager.cumulativeBaselineWork / 3_600_000).systemFormatted(fractionDigits: 2)))
                     .font(.title3.monospacedDigit())
                     .foregroundStyle(.secondary)
             }
@@ -371,7 +371,7 @@ struct ContentView: View {
     private var statsGroup: some View {
         HStack(spacing: 24) {
             VStack(spacing: 8) {
-                Text("Fahrzeit")
+                Text(L("travelTime"))
                     .font(.headline)
                     .foregroundStyle(.secondary)
                 Text(formattedTravelTime)
@@ -380,7 +380,7 @@ struct ContentView: View {
                     .contentTransition(.numericText())
             }
             VStack(spacing: 8) {
-                Text("Strecke")
+                Text(L("distance"))
                     .font(.headline)
                     .foregroundStyle(.secondary)
                 Text(formattedDistance)
@@ -389,7 +389,7 @@ struct ContentView: View {
                     .contentTransition(.numericText())
             }
             VStack(spacing: 8) {
-                Text("Durchschnitt")
+                Text(L("average"))
                     .font(.headline)
                     .foregroundStyle(.secondary)
                 Text("\(displayAverageSpeed.systemFormatted(fractionDigits: 1)) \(speedUnit)")
@@ -410,7 +410,7 @@ struct ContentView: View {
 
     private var formattedExtraWork: String {
         let pct = locationManager.extraWorkPercentage
-        return "Mehrverbrauch ≳\(pct.systemFormatted(fractionDigits: 1)) %"
+        return L("extraConsumptionFormat", pct.systemFormatted(fractionDigits: 1))
     }
 
     private var formattedDistance: String {
