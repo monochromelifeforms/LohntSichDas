@@ -37,7 +37,7 @@ struct ContentView: View {
     }
 
     private var useMiles: Bool { locationManager.useMiles }
-    private var speedUnit: String { useMiles ? "mph" : "km/h" }
+    private var speedUnit: String { useMiles ? "mph" : L("kmhUnit") }
 
     /// Converts a speed from internal km/h to the user's display unit.
     private func displayValue(_ kmh: Double) -> Double {

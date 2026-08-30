@@ -36,20 +36,12 @@ struct SettingsView: View {
     }
 
     private var speedUnit: String {
-        locationManager.useMiles ? "mph" : "km/h"
+        locationManager.useMiles ? "mph" : L("kmhUnit")
     }
 
     var body: some View {
         NavigationStack {
             Form {
-                Section {
-                    Picker(L("language"), selection: $locationManager.appLanguage) {
-                        ForEach(AppLanguage.allCases) { lang in
-                            Text(lang.displayName).tag(lang)
-                        }
-                    }
-                }
-
                 Section {
                     HStack {
                         Text(L("referenceSpeed"))
@@ -66,7 +58,7 @@ struct SettingsView: View {
                 Section {
                     Picker(L("unit"), selection: $locationManager.useMiles) {
                         Text("mph").tag(true)
-                        Text("km/h").tag(false)
+                        Text(L("kmhUnit")).tag(false)
                     }
                     .pickerStyle(.segmented)
                     .listRowBackground(Color.clear)
@@ -110,6 +102,15 @@ struct SettingsView: View {
                         } label: {
                             Text(L("deleteVehicle"))
                                 .frame(maxWidth: .infinity)
+                        }
+                    }
+                }
+
+                Section {
+                    Picker(L("language"), selection: $locationManager.appLanguage) {
+                        Text(AppLanguage.system.displayName).tag(AppLanguage.system)
+                        ForEach(AppLanguage.allCases.filter { $0 != .system }.sorted { $0.displayName < $1.displayName }) { lang in
+                            Text(lang.displayName).tag(lang)
                         }
                     }
                 }

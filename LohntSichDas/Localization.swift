@@ -110,12 +110,13 @@ private let german: [String: String] = [
     "helpBackground": "Hintergrund",
     "helpBackgroundText": "Die App läuft im Hintergrund weiter und erfasst auch dann Geschwindigkeit und gesparte Zeit, wenn du eine andere App nutzt. Wenn du nicht fährst, reduziert die App automatisch die GPS-Genauigkeit und spart so Akku.",
     "help": "Hilfe",
+    "kmhUnit": "km/h",
 ]
 
 // MARK: - English
 
 private let english: [String: String] = [
-    "trafficJamMode": "Traffic Jam",
+    "trafficJamMode": "Stop-and-Go",
     "stop": "Stop",
     "resetHoldToConfirm": "Reset (hold to confirm)",
     "referenceFormat": "Reference: %d %@",
@@ -155,7 +156,7 @@ private let english: [String: String] = [
     "helpSubtitleOr": "–or–",
     "helpSubtitleFull": "Did I really save that much time?",
     "helpSpeed": "Speed",
-    "helpSpeedText": "The app shows your current GPS speed — in km/h or mph, depending on your setting.",
+    "helpSpeedText": "The app shows your current GPS speed — in kph or mph, depending on your setting.",
     "helpPower": "Instantaneous Power",
     "helpPowerText": "The coloured arc inside the speed ring shows the current engine power. It is scaled to the active vehicle: at full power (vehicle power × 85% drivetrain efficiency) the arc reaches the end of the grey ring. The red arc (to the right) shows work being done; green (to the left) shows braking. For electric vehicles, bright green indicates the portion recovered through regenerative braking. The tick marks adapt automatically to the vehicle's power range. The highest measured engine power is saved per vehicle in Settings and can be adopted as the vehicle's rated power or reset there.",
     "helpTimeSaved": "Time Saved",
@@ -163,22 +164,23 @@ private let english: [String: String] = [
     "helpExtraConsumption": "Extra Consumption",
     "helpExtraConsumptionText": "Roughly estimates how much more fuel or energy you consume by exceeding the reference speed. The calculation considers aerodynamic drag, rolling resistance, elevation changes, and acceleration. Since real-world factors like gear selection, wind conditions, engine efficiency, and tyre pressure are not captured, this value is only an approximation. The active vehicle's parameters (mass, frontal area, drag coefficient, etc.) can be adjusted in Settings.",
     "helpTravelTime": "Travel Time",
-    "helpTravelTimeText": "Travel time starts as soon as you drive faster than 10 km/h. It stops automatically if you stay below 10 km/h for more than two minutes. In traffic jam mode this time is extended to one hour. The idle wait time is subtracted from the travel time. While driving, the screen stays on; afterwards it can turn off as usual.",
+    "helpTravelTimeText": "Travel time starts as soon as you drive faster than 10 kph. It stops automatically if you stay below 10 kph for more than two minutes. In stop-and-go mode this time is extended to one hour. The idle wait time is subtracted from the travel time. While driving, the screen stays on; afterwards it can turn off as usual.",
     "helpDistance": "Distance",
     "helpDistanceText": "Shows the total distance driven since the last reset — in kilometres or miles, depending on your setting.",
     "helpAverageSpeed": "Average Speed",
     "helpAverageSpeedText": "The average speed is calculated from the distance driven and the travel time.",
-    "helpTrafficJam": "Traffic Jam Mode",
-    "helpTrafficJamText": "Activate traffic jam mode when you are stuck in traffic. The automatic stop time is then extended from two minutes to one hour.",
+    "helpTrafficJam": "Stop-and-Go Mode",
+    "helpTrafficJamText": "Activate stop-and-go mode when you are in stop-and-go traffic. The automatic stop time is then extended from two minutes to one hour.",
     "helpStop": "Stop",
     "helpStopText": "Stops the travel time immediately, e.g. when you have arrived at your destination.",
     "helpVehicles": "Vehicles",
     "helpVehiclesText": "You can create multiple vehicles. In Settings, swipe sideways between vehicles and use \u{201C}Add Vehicle\u{201D} to create another. Each vehicle has a name (defaults to \u{201C}Car #x\u{201D}) and its own parameters such as power, mass, frontal area, and drivetrain type. Power can be entered in kW, PS, or HP. When multiple vehicles exist, you select the active one at the top centre via the vehicle name.",
     "helpSettings": "Settings",
-    "helpSettingsText": "Via the gear icon in the top right you can adjust the reference speed, switch between km/h and mph, and manage your vehicles.",
+    "helpSettingsText": "Via the gear icon in the top right you can adjust the reference speed, switch between kph and mph, and manage your vehicles.",
     "helpBackground": "Background",
     "helpBackgroundText": "The app continues running in the background, tracking speed and time saved even when you use another app. When you are not driving, the app automatically reduces GPS accuracy to save battery.",
     "help": "Help",
+    "kmhUnit": "kph",
 ]
 
 // MARK: - Korean
@@ -248,6 +250,7 @@ private let korean: [String: String] = [
     "helpBackground": "백그라운드",
     "helpBackgroundText": "다른 앱을 사용할 때도 앱이 백그라운드에서 계속 실행되어 속도와 절약 시간을 추적합니다. 주행하지 않을 때는 자동으로 GPS 정확도를 낮추어 배터리를 절약합니다.",
     "help": "도움말",
+    "kmhUnit": "km/h",
 ]
 
 // MARK: - Spanish
@@ -317,6 +320,7 @@ private let spanish: [String: String] = [
     "helpBackground": "Segundo plano",
     "helpBackgroundText": "La app sigue funcionando en segundo plano, registrando velocidad y tiempo ahorrado incluso cuando usas otra app. Cuando no conduces, la app reduce automáticamente la precisión GPS para ahorrar batería.",
     "help": "Ayuda",
+    "kmhUnit": "km/h",
 ]
 
 // MARK: - Italian
@@ -386,6 +390,7 @@ private let italian: [String: String] = [
     "helpBackground": "Sfondo",
     "helpBackgroundText": "L'app continua a funzionare in background, registrando velocità e tempo risparmiato anche quando usi un'altra app. Quando non guidi, l'app riduce automaticamente la precisione GPS per risparmiare batteria.",
     "help": "Aiuto",
+    "kmhUnit": "km/h",
 ]
 
 // MARK: - Dutch
@@ -455,6 +460,7 @@ private let dutch: [String: String] = [
     "helpBackground": "Achtergrond",
     "helpBackgroundText": "De app blijft op de achtergrond draaien en registreert snelheid en bespaarde tijd, ook als je een andere app gebruikt. Wanneer je niet rijdt, verlaagt de app automatisch de GPS-nauwkeurigheid om batterij te besparen.",
     "help": "Help",
+    "kmhUnit": "km/h",
 ]
 
 // MARK: - French
@@ -524,6 +530,7 @@ private let french: [String: String] = [
     "helpBackground": "Arrière-plan",
     "helpBackgroundText": "L'app continue de fonctionner en arrière-plan, enregistrant la vitesse et le temps économisé même lorsque vous utilisez une autre app. Quand vous ne conduisez pas, l'app réduit automatiquement la précision GPS pour économiser la batterie.",
     "help": "Aide",
+    "kmhUnit": "km/h",
 ]
 
 // MARK: - Romanian
@@ -593,6 +600,7 @@ private let romanian: [String: String] = [
     "helpBackground": "Fundal",
     "helpBackgroundText": "Aplicația continuă să funcționeze în fundal, înregistrând viteza și timpul economisit chiar și când folosești altă aplicație. Când nu conduci, aplicația reduce automat precizia GPS pentru a economisi bateria.",
     "help": "Ajutor",
+    "kmhUnit": "km/h",
 ]
 
 // MARK: - Portuguese
@@ -662,4 +670,5 @@ private let portuguese: [String: String] = [
     "helpBackground": "Segundo plano",
     "helpBackgroundText": "A app continua a funcionar em segundo plano, registando velocidade e tempo poupado mesmo quando usas outra app. Quando não conduzes, a app reduz automaticamente a precisão GPS para poupar bateria.",
     "help": "Ajuda",
+    "kmhUnit": "km/h",
 ]
