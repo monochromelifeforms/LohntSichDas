@@ -40,6 +40,7 @@ struct SettingsView: View {
     }
 
     var body: some View {
+        let _ = locationManager.appLanguage // trigger re-render on language change
         NavigationStack {
             Form {
                 Section {

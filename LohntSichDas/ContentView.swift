@@ -66,6 +66,7 @@ struct ContentView: View {
     }
 
     var body: some View {
+        let _ = locationManager.appLanguage // trigger re-render on language change
         VStack(spacing: 0) {
             Spacer().frame(height: 10)
             HStack {
