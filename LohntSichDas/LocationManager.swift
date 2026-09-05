@@ -84,7 +84,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
         get {
             access(keyPath: \.landscapeRingOnLeft)
             if let stored = UserDefaults.standard.object(forKey: "landscapeRingOnLeft") as? Bool { return stored }
-            return !Self.isLeftHandTraffic
+            return Self.isLeftHandTraffic
         }
         set { withMutation(keyPath: \.landscapeRingOnLeft) { UserDefaults.standard.set(newValue, forKey: "landscapeRingOnLeft") } }
     }
