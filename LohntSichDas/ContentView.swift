@@ -111,7 +111,6 @@ struct ContentView: View {
                 }
                 .padding(.leading, 24)
                 .padding(.top, 8)
-        .offset(x: locationManager.landscapeRingOnLeft ? 20 : -20)
                 Spacer()
                 Button {
                     showSettings = true
@@ -146,18 +145,20 @@ struct ContentView: View {
     private var landscapeLayout: some View {
         GeometryReader { geo in
             let ringWidth = geo.size.width * 0.38
-            HStack(spacing: 0) {
+            HStack(spacing: 40) {
                 if locationManager.landscapeRingOnLeft {
                     ringColumn(width: ringWidth, height: geo.size.height)
-                    swapButton
                     controlsColumn
                 } else {
                     controlsColumn
-                    swapButton
                     ringColumn(width: ringWidth, height: geo.size.height)
                 }
             }
             .frame(maxHeight: .infinity)
+            .overlay(alignment: .top) {
+                swapButton
+                    .padding(.top, 8)
+            }
         }
     }
 
@@ -189,23 +190,18 @@ struct ContentView: View {
     }
 
     private var swapButton: some View {
-        VStack {
-            Button {
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    locationManager.landscapeRingOnLeft.toggle()
-                }
-            } label: {
-                Image(systemName: "arrow.left.arrow.right.circle")
-                    .font(.title3)
-                    .foregroundStyle(.secondary)
-                    .padding(.vertical, 8)
-                    .padding(.horizontal, 12)
-                    .contentShape(Rectangle())
+        Button {
+            withAnimation(.easeInOut(duration: 0.3)) {
+                locationManager.landscapeRingOnLeft.toggle()
             }
-            .buttonStyle(.plain)
-            Spacer()
+        } label: {
+            Image(systemName: "arrow.left.arrow.right.circle")
+                .font(.system(size: 30))
+                .foregroundStyle(.secondary)
+                .padding(8)
+                .contentShape(Rectangle())
         }
-        .padding(.top, 8)
+        .buttonStyle(.plain)
     }
 
     // MARK: - Reusable groups
