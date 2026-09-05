@@ -18,6 +18,7 @@ struct ContentView: View {
     @State private var resetConfirmed = false
     @State private var showMehrverbrauchHelp = false
     @State private var showArbeitHelp = false
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
 
     // Ring geometry. The grey arc runs from `arcTrimStart` to `arcTrimEnd`; the
     // power band grows from the 12 o'clock centre (`bandTrimCenter`). A full band
@@ -67,8 +68,38 @@ struct ContentView: View {
         locationManager.isDriving ? .primary : .secondary
     }
 
+    private var isLandscape: Bool { verticalSizeClass == .compact }
+
     var body: some View {
         let _ = locationManager.appLanguage // trigger re-render on language change
+        Group {
+            if isLandscape {
+                landscapeLayout
+            } else {
+                portraitLayout
+            }
+        }
+        .onAppear {
+            locationManager.start()
+            UIApplication.shared.isIdleTimerDisabled = locationManager.isDriving
+        }
+        .onDisappear {
+            UIApplication.shared.isIdleTimerDisabled = false
+        }
+        .onChange(of: locationManager.isDriving) { _, driving in
+            UIApplication.shared.isIdleTimerDisabled = driving
+        }
+        .sheet(isPresented: $showSettings) {
+            SettingsView(locationManager: locationManager)
+        }
+        .sheet(isPresented: $showHelp) {
+            HelpView()
+        }
+    }
+
+    // MARK: - Portrait layout
+
+    private var portraitLayout: some View {
         VStack(spacing: 0) {
             Spacer().frame(height: 10)
             HStack {
@@ -80,6 +111,7 @@ struct ContentView: View {
                 }
                 .padding(.leading, 24)
                 .padding(.top, 8)
+        .offset(x: locationManager.landscapeRingOnLeft ? 20 : -20)
                 Spacer()
                 Button {
                     showSettings = true
@@ -104,119 +136,79 @@ struct ContentView: View {
             statsGroup
             Spacer()
 
-            // Staumodus and Stop buttons
-            HStack(spacing: 12) {
-                Button {
-                    locationManager.trafficJamMode.toggle()
-                } label: {
-                    Label(L("trafficJamMode"), systemImage: locationManager.trafficJamMode ? "car.fill" : "car")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(locationManager.trafficJamMode ? .orange : .gray.opacity(0.3),
-                                    in: RoundedRectangle(cornerRadius: 14))
-                        .foregroundStyle(locationManager.trafficJamMode ? .white : .primary)
-                }
-
-                Button {
-                    locationManager.stopDriving()
-                } label: {
-                    Label(L("stop"), systemImage: "stop.fill")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(locationManager.isDriving ? .blue : .gray.opacity(0.3),
-                                    in: RoundedRectangle(cornerRadius: 14))
-                        .foregroundStyle(locationManager.isDriving ? .white : .primary)
-                }
-                .disabled(!locationManager.isDriving)
-            }
-            .padding(.horizontal, 24)
-            .padding(.bottom, 12)
-
-            // Reset — slide thumb to the right to confirm
-            GeometryReader { geo in
-                let thumbSize: CGFloat = 54
-                let trackWidth = geo.size.width
-                let maxOffset = trackWidth - thumbSize
-                let triggered = resetOffset >= maxOffset * 0.85
-                ZStack(alignment: .leading) {
-                    // Track background
-                    RoundedRectangle(cornerRadius: 14)
-                        .fill(resetConfirmed ? .green : .red.opacity(0.25))
-                    // Label / confirmation in the track centre
-                    if resetConfirmed {
-                        Image(systemName: "checkmark")
-                            .font(.title2.weight(.bold))
-                            .foregroundStyle(.white)
-                            .frame(maxWidth: .infinity)
-                            .transition(.opacity)
-                    } else {
-                        Text(L("reset"))
-                            .font(.title2.weight(.semibold))
-                            .foregroundStyle(.red.opacity(max(0.15, 1 - resetOffset / maxOffset)))
-                            .frame(maxWidth: .infinity)
-                    }
-                    // Draggable thumb
-                    if !resetConfirmed {
-                        Image(systemName: "chevron.right.2")
-                            .font(.title2.weight(.bold))
-                            .foregroundStyle(.white)
-                            .frame(width: thumbSize, height: thumbSize)
-                            .background(.red, in: RoundedRectangle(cornerRadius: 14))
-                            .offset(x: resetOffset)
-                            .gesture(
-                                DragGesture()
-                                    .onChanged { value in
-                                        resetOffset = min(max(0, value.translation.width), maxOffset)
-                                    }
-                                    .onEnded { _ in
-                                        if triggered {
-                                            locationManager.reset()
-                                            resetTriggered.toggle()
-                                            withAnimation(.easeInOut(duration: 0.2)) {
-                                                resetConfirmed = true
-                                            }
-                                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-                                                withAnimation(.easeInOut(duration: 0.2)) {
-                                                    resetConfirmed = false
-                                                    resetOffset = 0
-                                                }
-                                            }
-                                        } else {
-                                            withAnimation(.snappy(duration: 0.3)) {
-                                                resetOffset = 0
-                                            }
-                                        }
-                                    }
-                            )
-                    }
-                }
-            }
-            .frame(height: 54)
-            .sensoryFeedback(.success, trigger: resetTriggered)
-            .padding(.horizontal, 24)
-            .padding(.bottom, 32)
-        }
-        .onAppear {
-            locationManager.start()
-            UIApplication.shared.isIdleTimerDisabled = locationManager.isDriving
-        }
-        .onDisappear {
-            UIApplication.shared.isIdleTimerDisabled = false
-        }
-        .onChange(of: locationManager.isDriving) { _, driving in
-            UIApplication.shared.isIdleTimerDisabled = driving
-        }
-        .sheet(isPresented: $showSettings) {
-            SettingsView(locationManager: locationManager)
-        }
-        .sheet(isPresented: $showHelp) {
-            HelpView()
+            buttonsGroup
+            resetGroup
         }
     }
 
-    // MARK: - Reusable groups (for future landscape layout)
+    // MARK: - Landscape layout
+
+    private var landscapeLayout: some View {
+        GeometryReader { geo in
+            let ringWidth = geo.size.width * 0.38
+            HStack(spacing: 0) {
+                if locationManager.landscapeRingOnLeft {
+                    ringColumn(width: ringWidth, height: geo.size.height)
+                    swapButton
+                    controlsColumn
+                } else {
+                    controlsColumn
+                    swapButton
+                    ringColumn(width: ringWidth, height: geo.size.height)
+                }
+            }
+            .frame(maxHeight: .infinity)
+        }
+    }
+
+    private func ringColumn(width: CGFloat, height: CGFloat) -> some View {
+        let scale = min(height / 370, 1.0)
+        return ringGroup
+            .scaleEffect(scale)
+            // Shift down to visually center the speed number: the labels
+            // below it ("kph", "Reference…") push the VStack center lower
+            // than the number itself, and the ring overlay sits at y: -30.
+            .offset(y: 30)
+            .frame(width: width, height: height)
+    }
+
+    private var controlsColumn: some View {
+        VStack(spacing: 4) {
+            Spacer(minLength: 2)
+            timeSavedGroup
+            Spacer(minLength: 2)
+            extraWorkGroup
+            Spacer(minLength: 2)
+            statsGroup
+            Spacer(minLength: 2)
+            buttonsGroup
+            resetGroup
+        }
+        .padding(.horizontal, 16)
+        .frame(maxWidth: .infinity)
+    }
+
+    private var swapButton: some View {
+        VStack {
+            Button {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    locationManager.landscapeRingOnLeft.toggle()
+                }
+            } label: {
+                Image(systemName: "arrow.left.arrow.right.circle")
+                    .font(.title3)
+                    .foregroundStyle(.secondary)
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 12)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            Spacer()
+        }
+        .padding(.top, 8)
+    }
+
+    // MARK: - Reusable groups
 
     private var ringGroup: some View {
         VStack(spacing: 4) {
@@ -362,7 +354,7 @@ struct ContentView: View {
                 .font(.headline)
                 .foregroundStyle(.secondary)
             Text(formattedTimeSaved)
-                .font(.system(size: 52, weight: .semibold, design: .monospaced))
+                .font(.system(size: isLandscape ? 40 : 52, weight: .semibold, design: .monospaced))
                 .monospacedDigit()
                 .contentTransition(.numericText())
             Text(formattedPercentage)
@@ -391,6 +383,8 @@ struct ContentView: View {
                 Text(formattedExtraWork)
                     .font(.title.bold())
                     .foregroundStyle(.orange)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
                     .contentTransition(.numericText())
             }
             HStack(spacing: 6) {
@@ -410,6 +404,8 @@ struct ContentView: View {
                 Text(L("workFormat", (locationManager.cumulativeActualWork / 3_600_000).systemFormatted(fractionDigits: 2), (locationManager.cumulativeBaselineWork / 3_600_000).systemFormatted(fractionDigits: 2)))
                     .font(.title3.monospacedDigit())
                     .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
             }
         }
     }
@@ -444,6 +440,106 @@ struct ContentView: View {
                     .contentTransition(.numericText())
             }
         }
+    }
+
+    private var buttonsGroup: some View {
+        let hPad: CGFloat = isLandscape ? 12 : 24
+        return HStack(spacing: 12) {
+            Button {
+                locationManager.trafficJamMode.toggle()
+            } label: {
+                Label(L("trafficJamMode"), systemImage: locationManager.trafficJamMode ? "car.fill" : "car")
+                    .font(.headline)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, isLandscape ? 8 : 14)
+                    .padding(.horizontal, 8)
+                    .background(locationManager.trafficJamMode ? .orange : .gray.opacity(0.3),
+                                in: RoundedRectangle(cornerRadius: 14))
+                    .foregroundStyle(locationManager.trafficJamMode ? .white : .primary)
+            }
+
+            Button {
+                locationManager.stopDriving()
+            } label: {
+                Label(L("stop"), systemImage: "stop.fill")
+                    .font(.headline)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, isLandscape ? 8 : 14)
+                    .padding(.horizontal, 8)
+                    .background(locationManager.isDriving ? .blue : .gray.opacity(0.3),
+                                in: RoundedRectangle(cornerRadius: 14))
+                    .foregroundStyle(locationManager.isDriving ? .white : .primary)
+            }
+            .disabled(!locationManager.isDriving)
+        }
+        .padding(.horizontal, hPad)
+        .padding(.bottom, isLandscape ? 4 : 12)
+    }
+
+    private var resetGroup: some View {
+        GeometryReader { geo in
+            let thumbSize: CGFloat = 54
+            let trackWidth = geo.size.width
+            let maxOffset = trackWidth - thumbSize
+            let triggered = resetOffset >= maxOffset * 0.85
+            ZStack(alignment: .leading) {
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(resetConfirmed ? .green : .red.opacity(0.25))
+                if resetConfirmed {
+                    Image(systemName: "checkmark")
+                        .font(.title2.weight(.bold))
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .transition(.opacity)
+                } else {
+                    Text(L("reset"))
+                        .font(.title2.weight(.semibold))
+                        .foregroundStyle(.red.opacity(max(0.15, 1 - resetOffset / maxOffset)))
+                        .frame(maxWidth: .infinity)
+                }
+                if !resetConfirmed {
+                    Image(systemName: "chevron.right.2")
+                        .font(.title2.weight(.bold))
+                        .foregroundStyle(.white)
+                        .frame(width: thumbSize, height: thumbSize)
+                        .background(.red, in: RoundedRectangle(cornerRadius: 14))
+                        .offset(x: resetOffset)
+                        .gesture(
+                            DragGesture()
+                                .onChanged { value in
+                                    resetOffset = min(max(0, value.translation.width), maxOffset)
+                                }
+                                .onEnded { _ in
+                                    if triggered {
+                                        locationManager.reset()
+                                        resetTriggered.toggle()
+                                        withAnimation(.easeInOut(duration: 0.2)) {
+                                            resetConfirmed = true
+                                        }
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                                            withAnimation(.easeInOut(duration: 0.2)) {
+                                                resetConfirmed = false
+                                                resetOffset = 0
+                                            }
+                                        }
+                                    } else {
+                                        withAnimation(.snappy(duration: 0.3)) {
+                                            resetOffset = 0
+                                        }
+                                    }
+                                }
+                        )
+                }
+            }
+        }
+        .frame(height: isLandscape ? 44 : 54)
+        .sensoryFeedback(.success, trigger: resetTriggered)
+        .padding(.horizontal, isLandscape ? 12 : 24)
+        .padding(.bottom, isLandscape ? 8 : 32)
     }
 
     // MARK: - Formatters
@@ -501,6 +597,10 @@ struct ContentView: View {
     lm.currentSpeed = 155
     lm.instantaneousPower = 45_000
     return ContentView(locationManager: lm)
+}
+
+#Preview("Landscape", traits: .landscapeLeft) {
+    ContentView()
 }
 
 

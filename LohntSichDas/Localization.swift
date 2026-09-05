@@ -110,6 +110,8 @@ private let german: [String: String] = [
     "helpSettingsText": "Über das Zahnrad oben rechts kannst du die Referenzgeschwindigkeit anpassen, zwischen km/h und mph umschalten und deine Fahrzeuge verwalten.",
     "helpBackground": "Hintergrund",
     "helpBackgroundText": "Die App läuft im Hintergrund weiter und erfasst auch dann Geschwindigkeit und gesparte Zeit, wenn du eine andere App nutzt. Wenn du nicht fährst, reduziert die App automatisch die GPS-Genauigkeit und spart so Akku.",
+    "helpLandscape": "Querformat",
+    "helpLandscapeText": "Drehe dein Gerät ins Querformat für ein Zwei-Spalten-Layout: Tachoring auf einer Seite, Steuerung und Statistiken auf der anderen. Standardmäßig sind die Bedienelemente auf der Fahrerseite. Tippe auf das Pfeil-Symbol zwischen den Spalten, um die Seiten zu tauschen. Hilfe und Einstellungen sind nur im Hochformat erreichbar.",
     "help": "Hilfe",
     "kmhUnit": "km/h",
 ]
@@ -181,6 +183,8 @@ private let english: [String: String] = [
     "helpSettingsText": "Via the gear icon in the top right you can adjust the reference speed, switch between kph and mph, and manage your vehicles.",
     "helpBackground": "Background",
     "helpBackgroundText": "The app continues running in the background, tracking speed and time saved even when you use another app. When you are not driving, the app automatically reduces GPS accuracy to save battery.",
+    "helpLandscape": "Landscape",
+    "helpLandscapeText": "Rotate your device to landscape for a two-column layout: speed ring on one side, controls and stats on the other. By default, the controls are placed on the driver's side. Tap the arrow icon between the columns to swap sides. Help and settings are only accessible in portrait.",
     "help": "Help",
     "kmhUnit": "kph",
 ]
@@ -252,6 +256,8 @@ private let korean: [String: String] = [
     "helpSettingsText": "오른쪽 상단의 톱니바퀴 아이콘으로 기준 속도를 조정하고, km/h와 mph를 전환하고, 차량을 관리할 수 있습니다.",
     "helpBackground": "백그라운드",
     "helpBackgroundText": "다른 앱을 사용할 때도 앱이 백그라운드에서 계속 실행되어 속도와 절약 시간을 추적합니다. 주행하지 않을 때는 자동으로 GPS 정확도를 낮추어 배터리를 절약합니다.",
+    "helpLandscape": "가로 모드",
+    "helpLandscapeText": "기기를 가로로 회전하면 2단 레이아웃이 표시됩니다: 한쪽에는 속도 링, 다른 쪽에는 컨트롤과 통계. 기본적으로 조작 버튼은 운전석 쪽에 배치됩니다. 열 사이의 화살표 아이콘을 탭하여 좌우를 바꿀 수 있습니다. 도움말과 설정은 세로 모드에서만 접근할 수 있습니다.",
     "help": "도움말",
     "kmhUnit": "km/h",
 ]
@@ -323,6 +329,8 @@ private let spanish: [String: String] = [
     "helpSettingsText": "Mediante el icono de engranaje en la esquina superior derecha puedes ajustar la velocidad de referencia, cambiar entre km/h y mph, y gestionar tus vehículos.",
     "helpBackground": "Segundo plano",
     "helpBackgroundText": "La app sigue funcionando en segundo plano, registrando velocidad y tiempo ahorrado incluso cuando usas otra app. Cuando no conduces, la app reduce automáticamente la precisión GPS para ahorrar batería.",
+    "helpLandscape": "Horizontal",
+    "helpLandscapeText": "Gira tu dispositivo a horizontal para un diseño de dos columnas: anillo de velocidad en un lado, controles y estadísticas en el otro. Por defecto, los controles se colocan en el lado del conductor. Toca el icono de flechas entre las columnas para intercambiar lados. Ayuda y ajustes solo están accesibles en vertical.",
     "help": "Ayuda",
     "kmhUnit": "km/h",
 ]
@@ -394,6 +402,8 @@ private let italian: [String: String] = [
     "helpSettingsText": "Tramite l'icona dell'ingranaggio in alto a destra puoi regolare la velocità di riferimento, passare tra km/h e mph e gestire i tuoi veicoli.",
     "helpBackground": "Sfondo",
     "helpBackgroundText": "L'app continua a funzionare in background, registrando velocità e tempo risparmiato anche quando usi un'altra app. Quando non guidi, l'app riduce automaticamente la precisione GPS per risparmiare batteria.",
+    "helpLandscape": "Orizzontale",
+    "helpLandscapeText": "Ruota il dispositivo in orizzontale per un layout a due colonne: anello velocità da un lato, controlli e statistiche dall'altro. Per impostazione predefinita, i controlli sono posizionati sul lato del conducente. Tocca l'icona delle frecce tra le colonne per scambiare i lati. Aiuto e impostazioni sono accessibili solo in verticale.",
     "help": "Aiuto",
     "kmhUnit": "km/h",
 ]
@@ -465,6 +475,8 @@ private let dutch: [String: String] = [
     "helpSettingsText": "Via het tandwielpictogram rechtsboven kun je de referentiesnelheid aanpassen, wisselen tussen km/h en mph, en je voertuigen beheren.",
     "helpBackground": "Achtergrond",
     "helpBackgroundText": "De app blijft op de achtergrond draaien en registreert snelheid en bespaarde tijd, ook als je een andere app gebruikt. Wanneer je niet rijdt, verlaagt de app automatisch de GPS-nauwkeurigheid om batterij te besparen.",
+    "helpLandscape": "Liggend",
+    "helpLandscapeText": "Draai je apparaat naar liggend formaat voor een tweekoloms indeling: snelheidsring aan de ene kant, bediening en statistieken aan de andere. Standaard staan de bedieningselementen aan de bestuurderszijde. Tik op het pijlpictogram tussen de kolommen om de zijden te wisselen. Help en instellingen zijn alleen bereikbaar in staand formaat.",
     "help": "Help",
     "kmhUnit": "km/h",
 ]
@@ -536,6 +548,8 @@ private let french: [String: String] = [
     "helpSettingsText": "Via l'icône d'engrenage en haut à droite, vous pouvez ajuster la vitesse de référence, basculer entre km/h et mph, et gérer vos véhicules.",
     "helpBackground": "Arrière-plan",
     "helpBackgroundText": "L'app continue de fonctionner en arrière-plan, enregistrant la vitesse et le temps économisé même lorsque vous utilisez une autre app. Quand vous ne conduisez pas, l'app réduit automatiquement la précision GPS pour économiser la batterie.",
+    "helpLandscape": "Paysage",
+    "helpLandscapeText": "Tournez votre appareil en mode paysage pour un affichage en deux colonnes : anneau de vitesse d'un côté, commandes et statistiques de l'autre. Par défaut, les commandes sont placées du côté conducteur. Appuyez sur l'icône de flèches entre les colonnes pour intervertir les côtés. L'aide et les réglages ne sont accessibles qu'en mode portrait.",
     "help": "Aide",
     "kmhUnit": "km/h",
 ]
@@ -607,6 +621,8 @@ private let romanian: [String: String] = [
     "helpSettingsText": "Prin pictograma roții dințate din dreapta sus poți ajusta viteza de referință, comuta între km/h și mph și gestiona vehiculele tale.",
     "helpBackground": "Fundal",
     "helpBackgroundText": "Aplicația continuă să funcționeze în fundal, înregistrând viteza și timpul economisit chiar și când folosești altă aplicație. Când nu conduci, aplicația reduce automat precizia GPS pentru a economisi bateria.",
+    "helpLandscape": "Peisaj",
+    "helpLandscapeText": "Rotește dispozitivul în modul peisaj pentru un layout cu două coloane: inelul de viteză pe o parte, comenzi și statistici pe cealaltă. Implicit, comenzile sunt plasate pe partea șoferului. Atinge pictograma cu săgeți dintre coloane pentru a schimba părțile. Ajutorul și setările sunt accesibile doar în modul portret.",
     "help": "Ajutor",
     "kmhUnit": "km/h",
 ]
@@ -678,6 +694,8 @@ private let portuguese: [String: String] = [
     "helpSettingsText": "Através do ícone de engrenagem no canto superior direito podes ajustar a velocidade de referência, alternar entre km/h e mph e gerir os teus veículos.",
     "helpBackground": "Segundo plano",
     "helpBackgroundText": "A app continua a funcionar em segundo plano, registando velocidade e tempo poupado mesmo quando usas outra app. Quando não conduzes, a app reduz automaticamente a precisão GPS para poupar bateria.",
+    "helpLandscape": "Paisagem",
+    "helpLandscapeText": "Roda o teu dispositivo para paisagem para um layout de duas colunas: anel de velocidade de um lado, controlos e estatísticas do outro. Por defeito, os controlos ficam do lado do condutor. Toca no ícone de setas entre as colunas para trocar os lados. Ajuda e definições só estão acessíveis em retrato.",
     "help": "Ajuda",
     "kmhUnit": "km/h",
 ]

@@ -94,6 +94,12 @@ struct HelpView: View {
                         title: L("helpBackground"),
                         text: L("helpBackgroundText")
                     )
+
+                    section(
+                        icon: "rectangle.split.2x1",
+                        title: L("helpLandscape"),
+                        text: L("helpLandscapeText")
+                    )
                 }
                 .padding(24)
             }

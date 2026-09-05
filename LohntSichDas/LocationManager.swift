@@ -33,6 +33,22 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
         Locale.current.region?.identifier == "DE" ? 130.0 : 100.0
     }
 
+    /// Whether the device's region uses left-hand traffic (UK, AU, JP, …).
+    /// Used only for the first-launch default of `landscapeRingOnLeft`.
+    private static var isLeftHandTraffic: Bool {
+        let lht: Set<String> = [
+            "AG", "AI", "AU", "BB", "BD", "BM", "BN", "BS", "BT", "BW",
+            "CC", "CK", "CX", "CY", "DM", "FJ", "FK", "GB", "GD", "GG",
+            "GI", "GS", "GY", "HK", "ID", "IE", "IM", "IN", "IO", "JE",
+            "JM", "JP", "KE", "KI", "KN", "KY", "LC", "LK", "LS", "MO",
+            "MS", "MT", "MU", "MV", "MW", "MY", "MZ", "NA", "NF", "NP",
+            "NR", "NU", "NZ", "PG", "PK", "PN", "SB", "SC", "SG", "SH",
+            "SR", "SZ", "TC", "TH", "TK", "TL", "TO", "TT", "TV", "TZ",
+            "UG", "VC", "VG", "WS", "ZA", "ZM", "ZW",
+        ]
+        return lht.contains(Locale.current.region?.identifier ?? "")
+    }
+
     var threshold: Double { // km/h (always stored in km/h)
         get { access(keyPath: \.threshold); return UserDefaults.standard.object(forKey: "threshold") as? Double ?? Self.defaultThresholdKMH }
         set { withMutation(keyPath: \.threshold) { UserDefaults.standard.set(newValue, forKey: "threshold") } }
@@ -60,6 +76,17 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
             withMutation(keyPath: \.appLanguage) { UserDefaults.standard.set(newValue.rawValue, forKey: "appLanguage") }
             currentAppLanguage = newValue
         }
+    }
+
+    /// Whether the speed ring appears on the left in landscape mode.
+    /// Default: ring on the opposite side from the steering wheel (driver-side controls).
+    var landscapeRingOnLeft: Bool {
+        get {
+            access(keyPath: \.landscapeRingOnLeft)
+            if let stored = UserDefaults.standard.object(forKey: "landscapeRingOnLeft") as? Bool { return stored }
+            return !Self.isLeftHandTraffic
+        }
+        set { withMutation(keyPath: \.landscapeRingOnLeft) { UserDefaults.standard.set(newValue, forKey: "landscapeRingOnLeft") } }
     }
 
     /// Unit used to enter/display engine power. Global (vehicle power is stored in kW).
