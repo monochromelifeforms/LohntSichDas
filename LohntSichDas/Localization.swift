@@ -46,7 +46,8 @@ private let german: [String: String] = [
     // ContentView
     "trafficJamMode": "Staumodus",
     "stop": "Stop",
-    "resetHoldToConfirm": "Reset (gedrückt halten)",
+    "reset": "Reset",
+
     "referenceFormat": "Referenz: %d %@",
     "timeSaved": "Gesparte Zeit",
     "travelTime": "Fahrzeit",
@@ -118,7 +119,8 @@ private let german: [String: String] = [
 private let english: [String: String] = [
     "trafficJamMode": "Stop-and-Go",
     "stop": "Stop",
-    "resetHoldToConfirm": "Reset (hold to confirm)",
+    "reset": "Reset",
+
     "referenceFormat": "Reference: %d %@",
     "timeSaved": "Time Saved",
     "travelTime": "Travel Time",
@@ -188,7 +190,8 @@ private let english: [String: String] = [
 private let korean: [String: String] = [
     "trafficJamMode": "정체 모드",
     "stop": "정지",
-    "resetHoldToConfirm": "초기화 (길게 누르기)",
+    "reset": "초기화",
+
     "referenceFormat": "기준: %d %@",
     "timeSaved": "절약한 시간",
     "travelTime": "주행 시간",
@@ -258,7 +261,8 @@ private let korean: [String: String] = [
 private let spanish: [String: String] = [
     "trafficJamMode": "Modo atasco",
     "stop": "Parar",
-    "resetHoldToConfirm": "Reiniciar (mantener pulsado)",
+    "reset": "Reiniciar",
+
     "referenceFormat": "Referencia: %d %@",
     "timeSaved": "Tiempo ahorrado",
     "travelTime": "Tiempo de viaje",
@@ -328,7 +332,8 @@ private let spanish: [String: String] = [
 private let italian: [String: String] = [
     "trafficJamMode": "Modo traffico",
     "stop": "Stop",
-    "resetHoldToConfirm": "Reset (tieni premuto)",
+    "reset": "Reset",
+
     "referenceFormat": "Riferimento: %d %@",
     "timeSaved": "Tempo risparmiato",
     "travelTime": "Tempo di viaggio",
@@ -398,7 +403,8 @@ private let italian: [String: String] = [
 private let dutch: [String: String] = [
     "trafficJamMode": "Filestand",
     "stop": "Stop",
-    "resetHoldToConfirm": "Reset (ingedrukt houden)",
+    "reset": "Reset",
+
     "referenceFormat": "Referentie: %d %@",
     "timeSaved": "Bespaarde tijd",
     "travelTime": "Reistijd",
@@ -468,7 +474,8 @@ private let dutch: [String: String] = [
 private let french: [String: String] = [
     "trafficJamMode": "Mode embouteillage",
     "stop": "Arrêter",
-    "resetHoldToConfirm": "Réinitialiser (maintenir)",
+    "reset": "Réinitialiser",
+
     "referenceFormat": "Référence : %d %@",
     "timeSaved": "Temps économisé",
     "travelTime": "Temps de trajet",
@@ -538,7 +545,8 @@ private let french: [String: String] = [
 private let romanian: [String: String] = [
     "trafficJamMode": "Mod ambuteiaj",
     "stop": "Stop",
-    "resetHoldToConfirm": "Resetare (ține apăsat)",
+    "reset": "Resetare",
+
     "referenceFormat": "Referință: %d %@",
     "timeSaved": "Timp economisit",
     "travelTime": "Timp de călătorie",
@@ -608,7 +616,8 @@ private let romanian: [String: String] = [
 private let portuguese: [String: String] = [
     "trafficJamMode": "Modo engarrafamento",
     "stop": "Parar",
-    "resetHoldToConfirm": "Reiniciar (manter premido)",
+    "reset": "Reiniciar",
+
     "referenceFormat": "Referência: %d %@",
     "timeSaved": "Tempo poupado",
     "travelTime": "Tempo de viagem",

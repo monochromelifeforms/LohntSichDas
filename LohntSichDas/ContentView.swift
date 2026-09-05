@@ -13,7 +13,9 @@ struct ContentView: View {
     }
     @State private var showSettings = false
     @State private var showHelp = false
-    @State private var resetFlash = false
+    @State private var resetOffset: CGFloat = 0
+    @State private var resetTriggered = false
+    @State private var resetConfirmed = false
     @State private var showMehrverbrauchHelp = false
     @State private var showArbeitHelp = false
 
@@ -132,24 +134,67 @@ struct ContentView: View {
             .padding(.horizontal, 24)
             .padding(.bottom, 12)
 
-            // Reset button — requires a long press to avoid accidental activation
-            Text(L("resetHoldToConfirm"))
-                .font(.title2.weight(.semibold))
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(.red, in: RoundedRectangle(cornerRadius: 14))
-                .foregroundStyle(.white)
-                .scaleEffect(resetFlash ? 0.92 : 1.0)
-                .opacity(resetFlash ? 0.6 : 1.0)
-                .animation(.easeOut(duration: 0.2), value: resetFlash)
-                .onLongPressGesture(minimumDuration: 0.8) {
-                    locationManager.reset()
-                    resetFlash = true
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-                        resetFlash = false
+            // Reset — slide thumb to the right to confirm
+            GeometryReader { geo in
+                let thumbSize: CGFloat = 54
+                let trackWidth = geo.size.width
+                let maxOffset = trackWidth - thumbSize
+                let triggered = resetOffset >= maxOffset * 0.85
+                ZStack(alignment: .leading) {
+                    // Track background
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(resetConfirmed ? .green : .red.opacity(0.25))
+                    // Label / confirmation in the track centre
+                    if resetConfirmed {
+                        Image(systemName: "checkmark")
+                            .font(.title2.weight(.bold))
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .transition(.opacity)
+                    } else {
+                        Text(L("reset"))
+                            .font(.title2.weight(.semibold))
+                            .foregroundStyle(.red.opacity(max(0.15, 1 - resetOffset / maxOffset)))
+                            .frame(maxWidth: .infinity)
+                    }
+                    // Draggable thumb
+                    if !resetConfirmed {
+                        Image(systemName: "chevron.right.2")
+                            .font(.title2.weight(.bold))
+                            .foregroundStyle(.white)
+                            .frame(width: thumbSize, height: thumbSize)
+                            .background(.red, in: RoundedRectangle(cornerRadius: 14))
+                            .offset(x: resetOffset)
+                            .gesture(
+                                DragGesture()
+                                    .onChanged { value in
+                                        resetOffset = min(max(0, value.translation.width), maxOffset)
+                                    }
+                                    .onEnded { _ in
+                                        if triggered {
+                                            locationManager.reset()
+                                            resetTriggered.toggle()
+                                            withAnimation(.easeInOut(duration: 0.2)) {
+                                                resetConfirmed = true
+                                            }
+                                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                                                withAnimation(.easeInOut(duration: 0.2)) {
+                                                    resetConfirmed = false
+                                                    resetOffset = 0
+                                                }
+                                            }
+                                        } else {
+                                            withAnimation(.snappy(duration: 0.3)) {
+                                                resetOffset = 0
+                                            }
+                                        }
+                                    }
+                            )
                     }
                 }
-                .sensoryFeedback(.success, trigger: resetFlash)
+            }
+            .frame(height: 54)
+            .sensoryFeedback(.success, trigger: resetTriggered)
             .padding(.horizontal, 24)
             .padding(.bottom, 32)
         }
